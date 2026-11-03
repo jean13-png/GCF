@@ -51,20 +51,17 @@ Deux pilotes : `log` (e-mails journalisés en base, affichables dans l'administr
 ### 1. Copier le projet
 Placer le dossier `GCF` dans le répertoire du serveur (par exemple `C:\xampp\htdocs\GCF` sous XAMPP).
 
-### 2. Créer la base
-Via phpMyAdmin ou la ligne de commande :
-
-```sql
-SOURCE sql/schema.sql;
-SOURCE sql/seed.sql;   -- données de démonstration (facultatif)
-```
+### 2. Créer la base et les tables en une seule fois
+Dans phpMyAdmin : onglet **SQL**, copier-coller tout le contenu de `sql/install.sql`, puis **Exécuter**.
+Ce fichier unique crée la base `gcf`, les 9 tables, et insère les données de démonstration (salles, formations, sessions, comptes).
 
 Ou en console :
 
 ```bash
-mysql -u root < sql/schema.sql
-mysql -u root < sql/seed.sql
+mysql -u root < sql/install.sql
 ```
+
+> Préfère-tu installer sans les données de démo ? Exécute `sql/schema.sql` seul (base + tables vierges).
 
 ### 3. Configurer la connexion
 Par défaut, la configuration vise XAMPP (`root`, mot de passe vide, base `gcf`). Pour un autre environnement, créer `config/config.local.php` (non versionné) :
@@ -79,7 +76,9 @@ return [
 Le pilote e-mail se règle dans `config/config.php` : `'driver' => 'log'` (journal) ou `'mail'` (envoi réel).
 
 ### 4. Ouvrir la plateforme
-`http://localhost/GCF/public/` — la page d'accueil est la page d'inscription en ligne.
+**`http://localhost/GCF/`** — c'est tout ! Le fichier `index.php` à la racine et le `.htaccess` servent directement la page publique d'inscription ; toutes les routes (`/login`, `/dashboard`, `/salles`…) fonctionnent depuis la racine, et les dossiers internes (`app/`, `config/`, `sql/`) sont interdits d'accès depuis le navigateur.
+
+> L'accès direct par `http://localhost/GCF/public/` reste possible également.
 
 ---
 
@@ -110,9 +109,11 @@ Le pilote e-mail se règle dans `config/config.php` : `'driver' => 'log'` (journ
 
 ```
 GCF/
-├── public/              Point d'entrée unique (index.php, .htaccess, assets)
+├── index.php            Point d'entrée à la racine (localhost/GCF pointe dessus)
+├── .htaccess            Réécriture des routes + protection des dossiers internes
+├── public/              Cœur servi (index.php, assets) — accessible aussi en direct
 ├── config/              Configuration centrale + surcharge locale
-├── sql/                 Schéma de la base + générateur des données de démo
+├── sql/                 install.sql (tout-en-un) + schema.sql + seed
 ├── docs/                Cahier des charges (v1.1)
 └── app/
     ├── Core/            Autoloader, routeur, PDO, auth, CSRF, validation, flash, mailer, helpers

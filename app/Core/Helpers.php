@@ -60,7 +60,10 @@ function url(string $chemin = '/'): string
 
 function asset(string $chemin): string
 {
-    return url('/assets/' . ltrim($chemin, '/'));
+    // Selon que la plateforme est servie depuis la racine (index.php)
+    // ou depuis public/, le préfixe des fichiers statiques change.
+    $prefixe = defined('DEPUIS_RACINE') ? '/public' : '';
+    return url($prefixe . '/assets/' . ltrim($chemin, '/'));
 }
 
 function redirect(string $chemin): never

@@ -1,0 +1,13 @@
+# ─── GCF · accès direct à la racine (XAMPP / Apache) ───────────────
+# http://localhost/GCF affiche la plateforme (page publique d'inscription)
+# et toutes les routes (/login, /dashboard, /salles…) sont servies par index.php.
+
+RewriteEngine On
+
+# Les dossiers internes ne sont jamais accessibles depuis le navigateur
+RewriteRule ^(app|config|sql|docs)(/|$) - [F]
+
+# Tout ce qui n'est pas un fichier ou un dossier existant passe par index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
