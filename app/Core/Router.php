@@ -22,7 +22,15 @@ final class Router
 
     public function dispatch(string $methode, string $uri): void
     {
-        $uri = '/' . trim(parse_url($uri, PHP_URL_PATH) ?? '/', '/');
+        $uri = parse_url($uri, PHP_URL_PATH) ?? '/';
+        
+        // Enlever le base_path si présent (pour supporter /GCF/login par exemple)
+        $basePath = base_path();
+        if ($basePath !== '' && str_starts_with($uri, $basePath)) {
+            $uri = substr($uri, strlen($basePath));
+        }
+        
+        $uri = '/' . trim($uri, '/');
 
         foreach ($this->routes as [$verbe, $route, $action, $roles]) {
             if ($verbe !== $methode) {

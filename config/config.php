@@ -14,7 +14,7 @@ return [
         'port'    => '3306',
         'name'    => 'gcf',
         'user'    => 'root',
-        'pass'    => '',
+        'pass'    => '632562',
         'charset' => 'utf8mb4',
     ],
     'mail' => [
