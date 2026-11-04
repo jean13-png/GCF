@@ -147,15 +147,16 @@ CREATE TABLE activity_logs (
 -- ══════════════════════════════════════════════════════════════════
 --  DONNÉES DE DÉMONSTRATION
 --  Comptes :
---    admin@gcf.bj / Admin@2026            (administrateur)
---    salles@gcf.bj / Gestion@2026         (gestionnaire des salles)
---    formations@gcf.bj / Responsable@2026 (responsable formations)
+--    tossajean13@gmail.com / TOSjea13#            (administrateur)
+--    tossajean13salles@gmail.com / Gestion@2026         (gestionnaire des salles)
+--    tossajean13formations@gmail.com / Responsable@2026 (responsable formations)
 --    apprenant1@gmail.com / Apprenant@2026 (apprenant, matricule GCF-2026-0001)
 -- ══════════════════════════════════════════════════════════════════
 INSERT INTO users (matricule, nom, prenom, email, telephone, role, password_hash) VALUES
-(NULL, 'TOSSA', 'Jean', 'admin@gcf.bj', '+229 01 46 46 66 56', 'ADMIN', '$2y$12$./zlcFNHHK0HCCYK2L8Wyu/WzpEuhgLrc.hp/xNq7X9QQYDazZLvy'),
-(NULL, 'ADJOVI', 'Marie', 'salles@gcf.bj', '+229 01 97 00 00 01', 'GESTIONNAIRE', '$2y$12$JKvn6V4EmIX8MRPdp6LM9OxtudqwvnUKl/l8zVHw5J10Qf5k1vH0C'),
-(NULL, 'GBAGUIDI', 'Paul', 'formations@gcf.bj', '+229 01 97 00 00 02', 'RESPONSABLE', '$2y$12$tFkmNA/Ht/g6aM7qllogBO5qk4d7iE1DJyAk/vY5Y9hgDKEjqU3CC'),
+(NULL, 'TOSSA', 'Jean', 'tossajean13@gmail.com', '+229 01 46 46 66 56', 'ADMIN', '$2y$12$y/GibJHhJBLdwmLVbc.W0e3JIcDKb6/DtV2xzTQj541aJr8zciWL6'),
+(NULL, 'ADJOVI', 'Marie', 'tossajean13salles@gmail.com', '+229 01 97 00 00 01', 'GESTIONNAIRE', '$2y$12$JKvn6V4EmIX8MRPdp6LM9OxtudqwvnUKl/l8zVHw5J10Qf5k1vH0C'),
+(NULL, 'GBAGUIDI', 'Paul', 'tossajean13formations@gmail.com', '+229 01 97 00 00 02', 'RESPONSABLE', '$2y$12$tFkmNA/Ht/g6aM7qllogBO5qk4d7iE1DJyAk/vY5Y9hgDKEjqU3CC'),
+(NULL, 'FORMATEUR', 'Exemple', 'formateur@gmail.com', '+229 01 97 00 00 03', 'FORMATEUR', '$2y$12$tFkmNA/Ht/g6aM7qllogBO5qk4d7iE1DJyAk/vY5Y9hgDKEjqU3CC'),
 ('GCF-2026-0001', 'DOSSOU', 'Aïcha', 'apprenant1@gmail.com', '+229 01 97 00 00 10', 'APPRENANT', '$2y$12$SauJnsrq2h9XqJ1axypDbOX5Bfxdaekkvt2bFP0WnjVjRRExYgrFi'),
 ('GCF-2026-0002', 'KOUASSI', 'Ibrahim', 'apprenant2@gmail.com', '+229 01 97 00 00 11', 'APPRENANT', '$2y$12$NhhFPmIlaVWQv6m6Ad2HYuKv9E1zCAyz6X3BMb2rRAFD7zu.ulJYy');
 

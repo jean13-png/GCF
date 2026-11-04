@@ -33,17 +33,17 @@
 ### 5. Comptes de démonstration
 
 #### Administrateur
-- **Email** : admin@gcf.bj
-- **Mot de passe** : Admin@2026
+- **Email** : tossajean13@gmail.com
+- **Mot de passe** : TOSjea13#
 - **Rôle** : ADMIN
 
 #### Gestionnaire des salles
-- **Email** : salles@gcf.bj
+- **Email** : tossajean13salles@gmail.com
 - **Mot de passe** : Gestion@2026
 - **Rôle** : GESTIONNAIRE
 
 #### Responsable formations
-- **Email** : formations@gcf.bj
+- **Email** : tossajean13formations@gmail.com
 - **Mot de passe** : Responsable@2026
 - **Rôle** : RESPONSABLE
 
