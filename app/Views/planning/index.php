@@ -13,11 +13,11 @@ $classesStatut = ['EN_ATTENTE' => 'evt-attente', 'CONFIRMEE' => 'evt-confirme', 
 <div class="carte">
     <div class="carte-entete">
         <div class="planning-nav">
-            <a class="btn btn-petit btn-discret" href="<?= url('/planning?semaine=' . ($decalage - 1)) ?>">← Semaine précédente</a>
+            <a class="btn btn-petit btn-discret" href="<?= url('/planning?semaine=' . ($decalage - 1)) ?>"><i class="fas fa-arrow-left"></i> Semaine précédente</a>
             <span class="semaine-courante">
                 Semaine du <?= e(format_date_fr($lundi->format('Y-m-d'))) ?> au <?= e(format_date_fr($dimanche->format('Y-m-d'))) ?>
             </span>
-            <a class="btn btn-petit btn-discret" href="<?= url('/planning?semaine=' . ($decalage + 1)) ?>">Semaine suivante →</a>
+            <a class="btn btn-petit btn-discret" href="<?= url('/planning?semaine=' . ($decalage + 1)) ?>">Semaine suivante <i class="fas fa-arrow-right"></i></a>
             <?php if ($decalage !== 0): ?>
                 <a class="btn btn-petit btn-bleu" href="<?= url('/planning') ?>">Cette semaine</a>
             <?php endif; ?>

@@ -27,6 +27,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($titrePage ?? 'GCF') ?> · GCF</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 </head>
 <body>
@@ -40,8 +41,8 @@ $actif = static function (string $route) use ($cheminCourant): string {
         </div>
         <div class="sidebar-nav">
             <?php if ($role === 'APPRENANT'): ?>
-                <a href="<?= url('/mon-espace') ?>"<?= $actif('/mon-espace') ?>><span class="ic">◉</span> Mon espace</a>
-                <a href="<?= url('/mon-profil') ?>"<?= $actif('/mon-profil') ?>><span class="ic">☺</span> Mon profil</a>
+                <a href="<?= url('/mon-espace') ?>"<?= $actif('/mon-espace') ?>><span class="ic"><i class="fas fa-home"></i></span> Mon espace</a>
+                <a href="<?= url('/mon-profil') ?>"<?= $actif('/mon-profil') ?>><span class="ic"><i class="fas fa-user"></i></span> Mon profil</a>
             <?php else: ?>
                 <div class="groupe">Pilotage</div>
                 <a href="<?= url('/dashboard') ?>"<?= $actif('/dashboard') ?>><span class="ic">▤</span> Tableau de bord</a>
@@ -51,10 +52,10 @@ $actif = static function (string $route) use ($cheminCourant): string {
 
                 <?php if ($estSalle): ?>
                     <div class="groupe">Réservation de salles</div>
-                    <a href="<?= url('/salles') ?>"<?= $actif('/salles') ?>><span class="ic">▣</span> Salles</a>
-                    <a href="<?= url('/reservations') ?>"<?= $actif('/reservations') ?>><span class="ic">✓</span> Réservations</a>
+                    <a href="<?= url('/salles') ?>"<?= $actif('/salles') ?>><span class="ic"><i class="fas fa-door-open"></i></span> Salles</a>
+                    <a href="<?= url('/reservations') ?>"<?= $actif('/reservations') ?>><span class="ic"><i class="fas fa-check"></i></span> Réservations</a>
                 <?php endif; ?>
-                <a href="<?= url('/planning') ?>"<?= $actif('/planning') ?>><span class="ic">▦</span> Planning</a>
+                <a href="<?= url('/planning') ?>"<?= $actif('/planning') ?>><span class="ic"><i class="fas fa-calendar-alt"></i></span> Planning</a>
 
                 <?php if ($estSalle || $role === 'FORMATEUR'): ?>
                     <div class="groupe">Formations</div>
@@ -70,7 +71,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
                 <?php endif; ?>
 
                 <div class="groupe">Mon compte</div>
-                <a href="<?= url('/mon-profil') ?>"<?= $actif('/mon-profil') ?>><span class="ic">☺</span> Mon profil</a>
+                <a href="<?= url('/mon-profil') ?>"<?= $actif('/mon-profil') ?>><span class="ic"><i class="fas fa-user"></i></span> Mon profil</a>
             <?php endif; ?>
         </div>
         <div class="sidebar-pied">GCF · Gestion Centre de Formation</div>
@@ -81,7 +82,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
     <div class="contenu-app">
         <header class="topbar">
             <div style="display:flex;align-items:center;gap:12px;">
-                <button class="burger" type="button" aria-label="Ouvrir le menu">☰</button>
+                <button class="burger" type="button" aria-label="Ouvrir le menu"><i class="fas fa-bars"></i></button>
                 <h2><?= e($titrePage ?? '') ?></h2>
             </div>
             <div class="topbar-droite">

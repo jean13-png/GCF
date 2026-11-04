@@ -4,7 +4,7 @@
 <div class="carte" style="max-width:760px;">
     <div class="carte-entete">
         <h3><?= $salle ? e($salle['nom']) : 'Créer une salle' ?></h3>
-        <a class="btn btn-petit btn-discret" href="<?= url('/salles') ?>">← Retour</a>
+        <a class="btn btn-petit btn-discret" href="<?= url('/salles') ?>"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
 
     <form method="post" action="<?= url('/salles/enregistrer') ?>">

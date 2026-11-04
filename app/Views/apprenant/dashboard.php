@@ -15,7 +15,7 @@
 </div>
 
 <div class="carte">
-    <div class="carte-entete"><h3>📌 Mes formations à venir</h3></div>
+    <div class="carte-entete"><h3><i class="fas fa-map-pin"></i> Mes formations à venir</h3></div>
     <?php if ($aVenir === [] && $enCours === []): ?>
         <div class="vide">
             Aucune formation programmée pour le moment.<br>
@@ -47,7 +47,7 @@
 </div>
 
 <div class="carte">
-    <div class="carte-entete"><h3>🎓 Mes formations terminées</h3></div>
+    <div class="carte-entete"><h3><i class="fas fa-graduation-cap"></i> Mes formations terminées</h3></div>
     <?php if ($terminees === []): ?>
         <div class="vide">Vos formations terminées apparaîtront ici, avec vos résultats.</div>
     <?php else: ?>
@@ -66,7 +66,7 @@
 </div>
 
 <div class="carte">
-    <div class="carte-entete"><h3>🚀 Nouveautés : sessions ouvertes aux inscriptions</h3></div>
+    <div class="carte-entete"><h3><i class="fas fa-rocket"></i> Nouveautés : sessions ouvertes aux inscriptions</h3></div>
     <?php if ($sessionsOuvertes === []): ?>
         <div class="vide">Aucune nouvelle session ouverte pour l'instant.</div>
     <?php else: ?>

@@ -4,7 +4,7 @@
 <div class="carte" style="max-width:800px;">
     <div class="carte-entete">
         <h3>Déposer une demande de réservation</h3>
-        <a class="btn btn-petit btn-discret" href="<?= url('/reservations') ?>">← Retour</a>
+        <a class="btn btn-petit btn-discret" href="<?= url('/reservations') ?>"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
 
     <div class="encart-info">

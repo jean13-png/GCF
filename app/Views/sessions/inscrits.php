@@ -11,7 +11,7 @@
                 · Salle <?= e($session['salle_nom']) ?>
             </span>
         </div>
-        <a class="btn btn-petit btn-discret" href="<?= url('/sessions') ?>">← Sessions</a>
+        <a class="btn btn-petit btn-discret" href="<?= url('/sessions') ?>"><i class="fas fa-arrow-left"></i> Sessions</a>
     </div>
 
     <?php if ($inscriptions === []): ?>

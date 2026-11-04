@@ -55,7 +55,7 @@
                         <h3><?= e($f['titre']) ?></h3>
                         <p><?= e(mb_substr($f['description'] ?? '', 0, 110)) ?><?= ($f['description'] && mb_strlen($f['description']) > 110) ? '…' : '' ?></p>
                         <div class="carte-formation-meta">
-                            <span>⏱ <?= (int) $f['duree_heures'] ?> heures</span>
+                            <span><i class="fas fa-clock"></i> <?= (int) $f['duree_heures'] ?> heures</span>
                             <span class="carte-formation-prix"><?= format_fcfa($f['tarif']) ?></span>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
 
         <?php if ($sessionsOuvertes !== []): ?>
             <div class="prochaines-sessions">
-                <h3>📌 Prochaines sessions ouvertes</h3>
+                <h3><i class="fas fa-map-pin"></i> Prochaines sessions ouvertes</h3>
                 <ul>
                     <?php foreach ($sessionsOuvertes as $s): ?>
                         <li>
@@ -101,10 +101,10 @@
                 à l'heure près, et notre gestionnaire vous confirme après vérification du planning.
             </p>
             <ul class="atouts">
-                <li><span class="atout-ic">✓</span> Réservation à l'heure précise, sans chevauchement possible</li>
-                <li><span class="atout-ic">✓</span> Salles équipées : vidéoprojecteur, sonorisation, climatisation, wifi</li>
-                <li><span class="atout-ic">✓</span> Statut en direct : en attente, réservé, occupé</li>
-                <li><span class="atout-ic">✓</span> Confirmation et suivi notifiés par e-mail</li>
+                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Réservation à l'heure précise, sans chevauchement possible</li>
+                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Salles équipées : vidéoprojecteur, sonorisation, climatisation, wifi</li>
+                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Statut en direct : en attente, réservé, occupé</li>
+                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Confirmation et suivi notifiés par e-mail</li>
             </ul>
             <div class="salles-chips">
                 <?php foreach ($salles as $s): ?>

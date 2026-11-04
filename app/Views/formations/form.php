@@ -4,7 +4,7 @@
 <div class="carte" style="max-width:800px;">
     <div class="carte-entete">
         <h3><?= $formation ? e($formation['titre']) : 'Ajouter une formation au catalogue' ?></h3>
-        <a class="btn btn-petit btn-discret" href="<?= url('/formations') ?>">← Retour</a>
+        <a class="btn btn-petit btn-discret" href="<?= url('/formations') ?>"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
 
     <form method="post" action="<?= url('/formations/enregistrer') ?>">

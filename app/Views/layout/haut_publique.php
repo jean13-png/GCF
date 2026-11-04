@@ -15,6 +15,7 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Centre de formation dans le numérique : catalogue de formations, inscription en ligne et réservation de salles équipées.">
 <title><?= e($titrePage ?? 'Accueil') ?> · GCF · Centre de formation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 </head>
 <body>
@@ -24,8 +25,8 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
     <div class="topbar-info">
         <div class="conteneur topbar-info-inner">
             <div class="topbar-info-gauche">
-                <span>✉ &nbsp;<?= e(config('mail.from')) ?></span>
-                <span class="separe">📅 &nbsp;Du lundi au samedi · 8h à 18h</span>
+                <span><i class="fas fa-envelope"></i> &nbsp;<?= e(config('mail.from')) ?></span>
+                <span class="separe"><i class="fas fa-calendar"></i> &nbsp;Du lundi au samedi · 8h à 18h</span>
             </div>
             <div class="topbar-info-droite">Centre de formation professionnelle · Numérique</div>
         </div>
@@ -51,7 +52,7 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
                 </div>
             </nav>
 
-            <button class="burger" type="button" aria-label="Ouvrir le menu">☰</button>
+            <button class="burger" type="button" aria-label="Ouvrir le menu"><i class="fas fa-bars"></i></button>
         </div>
     </header>
 

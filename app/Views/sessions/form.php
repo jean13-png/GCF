@@ -4,7 +4,7 @@
 <div class="carte" style="max-width:820px;">
     <div class="carte-entete">
         <h3><?= $session ? 'Session · ' . e($session['formation_titre']) : 'Nouvelle session de formation' ?></h3>
-        <a class="btn btn-petit btn-discret" href="<?= url('/sessions') ?>">← Retour</a>
+        <a class="btn btn-petit btn-discret" href="<?= url('/sessions') ?>"><i class="fas fa-arrow-left"></i> Retour</a>
     </div>
 
     <?php if (!$session): ?>
