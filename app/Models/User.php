@@ -40,6 +40,11 @@ final class User
         return $matricule;
     }
 
+    public static function compterApprenants(): int
+    {
+        return (int) Database::selectOne('SELECT COUNT(*) AS n FROM users WHERE role = "APPRENANT"')['n'];
+    }
+
     public static function gestionnaires(): array
     {
         return Database::select('SELECT * FROM users WHERE role = "GESTIONNAIRE" AND actif = 1');

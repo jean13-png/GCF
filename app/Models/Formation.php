@@ -11,6 +11,11 @@ final class Formation
         return Database::select($sql);
     }
 
+    public static function compterActives(): int
+    {
+        return (int) Database::selectOne('SELECT COUNT(*) AS n FROM formations WHERE actif = 1')['n'];
+    }
+
     public static function trouver(int $id): ?array
     {
         return Database::selectOne('SELECT * FROM formations WHERE id = ?', [$id]);

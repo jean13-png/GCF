@@ -1,8 +1,8 @@
-/* GCF · interactions légères (sidebar mobile, confirmations, flash auto) */
+/* GCF · interactions légères (menus, confirmations, flash auto) */
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Sidebar en tiroir sur téléphone
-    var burger = document.querySelector('.burger');
+    // Sidebar en tiroir sur téléphone (espace connecté)
+    var burger = document.querySelector('.contenu-app .burger, .topbar .burger');
     var sidebar = document.querySelector('.sidebar');
     var voile = document.querySelector('.voile');
     if (burger && sidebar) {
@@ -16,6 +16,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 voile.classList.remove('visible');
             });
         }
+    }
+
+    // Menu du site public sur téléphone
+    var burgerPublic = document.querySelector('.navbar-publique .burger');
+    var menuPublic = document.querySelector('.menu-public');
+    if (burgerPublic && menuPublic) {
+        burgerPublic.addEventListener('click', function () {
+            menuPublic.classList.toggle('ouverte');
+        });
+        document.querySelectorAll('.menu-public a').forEach(function (a) {
+            a.addEventListener('click', function () { menuPublic.classList.remove('ouverte'); });
+        });
     }
 
     // Confirmation avant les actions sensibles

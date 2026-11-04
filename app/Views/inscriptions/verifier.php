@@ -1,6 +1,8 @@
 <?php $titrePage = 'Vérification de l\'adresse e-mail'; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
+<div class="conteneur page-publique">
+<div class="carte-publique">
 <?php if ($erreur !== null): ?>
     <h1>Oups…</h1>
     <p class="sous-titre">Un problème est survenu avec ce lien.</p>
@@ -30,5 +32,8 @@
         <a class="btn btn-primaire" href="<?= url('/login') ?>">Accéder à mon espace</a>
     </div>
 <?php endif; ?>
+
+</div>
+</div>
 
 <?php require dirname(__DIR__) . '/layout/bas_publique.php'; ?>

@@ -28,16 +28,38 @@ final class ReservationController
         ]);
     }
 
+    /** Formulaire interne (personnel du centre connecté). */
     public function form(): void
     {
         view('reservations/form', ['salles' => Salle::actives()]);
     }
 
+    /** Formulaire public de demande de réservation (page d'accueil → Réserver une salle). */
+    public function formPublique(): void
+    {
+        view('reservations/publique', ['salles' => Salle::actives()]);
+    }
+
     public function enregistrer(): void
+    {
+        $this->traiterDemande('/reservations');
+    }
+
+    public function enregistrerPublique(): void
+    {
+        $this->traiterDemande('/reserver');
+    }
+
+    /**
+     * Traite une demande de réservation (dépôt interne ou public).
+     * La demande naît « En attente » : la salle n'est acquise qu'après
+     * validation par le gestionnaire.
+     */
+    private function traiterDemande(string $retour): void
     {
         if (!CSRF::verify()) {
             Flash::set('erreur', 'Session expirée, veuillez réessayer.');
-            redirect('/reservations/nouvelle');
+            redirect($retour);
         }
         $v = new Validator($_POST);
         $v->required('salle_id', 'salle')->dans('salle_id', 'salle', array_map('strval', array_column(Salle::tous(), 'id')))
@@ -47,33 +69,32 @@ final class ReservationController
           ->required('heure_debut', 'heure de début')->heure('heure_debut', 'heure de début')
           ->required('heure_fin', 'heure de fin')->heure('heure_fin', 'heure de fin')
           ->apres('heure_debut', 'heure_fin', 'début', 'fin')
-          ->email('demandeur_email', 'e-mail')
+          ->required('demandeur_email', 'e-mail')->email('demandeur_email', 'e-mail')
           ->entier('nb_personnes', 'nombre de personnes', 0, 2000);
 
         if ($v->echoue()) {
             Flash::set('erreur', $v->premierMessage());
             Flash::setOld($_POST);
-            redirect('/reservations/nouvelle');
+            redirect($retour);
         }
 
         $salle = Salle::trouver((int) $_POST['salle_id']);
         if ($salle === null || (int) $salle['maintenance'] === 1) {
             Flash::set('erreur', 'Cette salle n\'est pas disponible (maintenance ou inexistante).');
             Flash::setOld($_POST);
-            redirect('/reservations/nouvelle');
+            redirect($retour);
         }
 
         if (Reservation::conflitExiste((int) $_POST['salle_id'], $_POST['date_reservation'], $_POST['heure_debut'], $_POST['heure_fin'], null)) {
-            Flash::set('erreur', 'Conflit d\'horaires : cette salle a déjà une réservation sur ce créneau. Consultez le planning.');
+            Flash::set('erreur', 'Conflit d\'horaires : cette salle a déjà une réservation sur ce créneau. Choisissez un autre créneau.');
             Flash::setOld($_POST);
-            redirect('/reservations/nouvelle');
+            redirect($retour);
         }
 
         $id = Reservation::creer($_POST);
         Auth::journaliser('RESERVATION_CREEE', 'Réservation #' . $id . ' · ' . $_POST['evenement']);
 
         // Notification des gestionnaires par e-mail
-        $lien = url('/reservations');
         foreach (User::gestionnaires() as $gestionnaire) {
             Mailer::envoyer(
                 $gestionnaire['email'],
@@ -84,12 +105,12 @@ final class ReservationController
                 . '<li><strong>Événement :</strong> ' . e($_POST['evenement']) . '</li>'
                 . '<li><strong>Demandeur :</strong> ' . e($_POST['demandeur_nom']) . '</li>'
                 . '<li><strong>Date :</strong> ' . e(format_date_fr($_POST['date_reservation'])) . ' de ' . e($_POST['heure_debut']) . ' à ' . e($_POST['heure_fin']) . '</li></ul>'
-                . Mailer::bouton($lien, 'Examiner la demande')
+                . Mailer::bouton(url('/login'), 'Examiner la demande')
             );
         }
 
-        Flash::set('succes', 'Demande enregistrée : la salle passe « En attente » jusqu\'à validation par le gestionnaire.');
-        redirect('/reservations');
+        Flash::set('succes', 'Votre demande est enregistrée et passe « En attente » : le gestionnaire va l\'examiner et vous répondre par e-mail.');
+        redirect($retour);
     }
 
     /** Le gestionnaire coche : valider, refuser, occuper, libérer, annuler. */
@@ -111,7 +132,6 @@ final class ReservationController
             redirect('/reservations');
         }
 
-        // L'occupation d'une salle déjà marquée occupée : on vérifie le conflit réel
         if (in_array($action, ['valider', 'occuper'], true)
             && Reservation::conflitExiste((int) $reservation['salle_id'], $reservation['date_reservation'], $reservation['heure_debut'], $reservation['heure_fin'], (int) $reservation['id'])) {
             Flash::set('erreur', 'Impossible : une autre réservation occupe déjà ce créneau sur cette salle.');
@@ -122,7 +142,6 @@ final class ReservationController
         Reservation::changerStatut((int) $id, $nouveauStatut, trim($_POST['commentaire'] ?? '') ?: null);
         Auth::journaliser('RESERVATION_STATUT', 'Réservation #' . $id . ' → ' . $nouveauStatut);
 
-        // Information du demandeur par e-mail à chaque étape clé
         if (!empty($reservation['demandeur_email'])) {
             $this->notifierDemandeur($reservation, $nouveauStatut, trim($_POST['commentaire'] ?? ''));
         }

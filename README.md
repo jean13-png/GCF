@@ -8,9 +8,17 @@ Développée en **PHP pur + MySQL**, sans aucun framework ni dépendance externe
 
 ## Fonctionnalités
 
+### Site public
+- **Page d'accueil complète** : bandeau d'informations, menu de navigation, hero avec appels à l'action
+  (« S'inscrire à une formation » / « Réserver une salle »), chiffres clés en direct de la base,
+  catalogue des formations avec photos, présentation des salles, parcours d'inscription en 4 étapes,
+  pied de page structuré. Responsive téléphone.
+- **Inscription en ligne** (`/inscription`) et **demande de réservation de salle en ligne** (`/reserver`),
+  accessibles sans compte.
+
 ### Volet 1 · Réservation de salles
 - Fiches salles : capacité, équipements, localisation, tarif horaire, mise en maintenance
-- Dépôt de demandes de réservation à l'heure précise (intitulé, date, créneau, nombre de personnes)
+- Dépôt de demandes de réservation à l'heure précise, **y compris depuis le site public** (`/reserver`)
 - **Anti-conflit garanti** : deux réservations ne peuvent pas se chevaucher sur une même salle
 - Statuts pilotés par le gestionnaire : **En attente → Réservé → Occupé → Libéré** (ou Refusée / Annulée)
 - Historique complet des changements de statut (qui, quand, commentaire)
@@ -97,10 +105,11 @@ Le pilote e-mail se règle dans `config/config.php` : `'driver' => 'log'` (journ
 
 ## Tester le parcours complet
 
-1. **Inscription** : à partir de la page d'accueil, choisir une session et remplir le formulaire.
+1. **Accueil** : ouvrir `http://localhost/GCF/` : page complète avec chiffres clés, formations et salles.
+2. **Inscription** : cliquer sur « S'inscrire à une formation », choisir une session et remplir le formulaire.
 2. **Vérification** : ouvrir le journal des e-mails (compte administrateur) et cliquer sur le lien de vérification du mail reçu.
 3. **Identifiants** : le mail suivant contient le matricule et le mot de passe provisoire. Se connecter avec.
-4. **Réservation** : avec le compte gestionnaire, déposer une demande, puis la valider (Réservé), l'occuper (Occupé) et la libérer. Le planning se met à jour à chaque étape.
+4. **Réservation** : depuis l'accueil (bouton « Réserver une salle ») ou avec le compte gestionnaire, déposer une demande, puis la valider (Réservé), l'occuper (Occupé) et la libérer. Le planning se met à jour à chaque étape.
 5. **Session de formation** : programmer une session : la salle est réservée automatiquement pour chaque jour de la période.
 
 ---
@@ -111,7 +120,7 @@ Le pilote e-mail se règle dans `config/config.php` : `'driver' => 'log'` (journ
 GCF/
 ├── index.php            Point d'entrée à la racine (localhost/GCF pointe dessus)
 ├── .htaccess            Réécriture des routes + protection des dossiers internes
-├── public/              Cœur servi (index.php, assets) — accessible aussi en direct
+├── public/              Cœur servi (index.php, assets, images) — accessible aussi en direct
 ├── config/              Configuration centrale + surcharge locale
 ├── sql/                 install.sql (tout-en-un) + schema.sql + seed
 ├── docs/                Cahier des charges (v1.1)

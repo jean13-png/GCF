@@ -13,7 +13,6 @@ final class AuthController
         if (Auth::check()) {
             $this->redirigerSelonRole();
         }
-        Flash::viderOld();
         view('auth/login');
     }
 

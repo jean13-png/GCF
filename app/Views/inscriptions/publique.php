@@ -1,11 +1,14 @@
 <?php $titrePage = 'Inscription en ligne'; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
-<h1>S'inscrire à une formation</h1>
-<p class="sous-titre">
-    Choisissez votre session dans la liste et laissez vos coordonnées : après vérification de votre adresse e-mail,
-    vos identifiants d'apprenant (matricule et mot de passe) vous seront envoyés par e-mail.
-</p>
+<div class="conteneur page-publique">
+<div class="entete-page-publique">
+    <h1>S'inscrire à une formation</h1>
+    <p>
+        Choisissez votre session dans la liste et laissez vos coordonnées : après vérification de votre
+        adresse e-mail, vos identifiants d'apprenant (matricule et mot de passe) vous sont envoyés par e-mail.
+    </p>
+</div>
 
 <?php if ($sessions === []): ?>
     <div class="encart-info">
@@ -13,6 +16,7 @@
         Revenez bientôt nous voir : de nouvelles formations dans le numérique sont programmées régulièrement.
     </div>
 <?php else: ?>
+    <div class="carte-publique-large">
     <form method="post" action="<?= url('/inscription') ?>">
         <?= csrf_champ() ?>
         <div class="form-grille" style="grid-template-columns:1fr;">
@@ -60,9 +64,11 @@
             </div>
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn btn-primaire">Envoyer ma demande d'inscription</button>
+            <button type="submit" class="btn btn-primaire btn-grand">Envoyer ma demande d'inscription</button>
         </div>
     </form>
+    </div>
 <?php endif; ?>
+</div>
 
 <?php require dirname(__DIR__) . '/layout/bas_publique.php'; ?>

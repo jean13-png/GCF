@@ -25,6 +25,7 @@ use App\Controllers\ApprenantController;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\FormationController;
+use App\Controllers\HomeController;
 use App\Controllers\InscriptionController;
 use App\Controllers\MailLogController;
 use App\Controllers\PlanningController;
@@ -34,10 +35,13 @@ use App\Controllers\SessionController;
 
 $router = new App\Core\Router();
 
-// ── Accueil : la page d'inscription publique ───────────────────────
-$router->get('/', [InscriptionController::class, 'publique']);
+// ── Accueil et pages publiques ─────────────────────────────────────
+$router->get('/', [HomeController::class, 'accueil']);
+$router->get('/inscription', [InscriptionController::class, 'publique']);
 $router->post('/inscription', [InscriptionController::class, 'soumettre']);
 $router->get('/inscription/verifier', [InscriptionController::class, 'verifier']);
+$router->get('/reserver', [ReservationController::class, 'formPublique']);
+$router->post('/reserver', [ReservationController::class, 'enregistrerPublique']);
 
 // ── Authentification (e-mail OU matricule + mot de passe) ─────────
 $router->get('/login', [AuthController::class, 'form']);

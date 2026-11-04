@@ -41,7 +41,7 @@ final class InscriptionController
         if ($v->echoue()) {
             Flash::set('erreur', $v->premierMessage());
             Flash::setOld($_POST);
-            redirect('/');
+            redirect('/inscription');
         }
 
         $sessionId = (int) $_POST['session_id'];
@@ -49,14 +49,14 @@ final class InscriptionController
         if ($sessionsOuvertes === []) {
             Flash::set('erreur', 'Cette session n\'est plus ouverte aux inscriptions.');
             Flash::setOld($_POST);
-            redirect('/');
+            redirect('/inscription');
         }
         $session = reset($sessionsOuvertes);
 
         if (Inscription::doublonExiste($sessionId, $_POST['email'])) {
             Flash::set('erreur', 'Une inscription avec cet e-mail existe déjà pour cette session.');
             Flash::setOld($_POST);
-            redirect('/');
+            redirect('/inscription');
         }
 
         $token = bin2hex(random_bytes(32));
@@ -81,7 +81,7 @@ final class InscriptionController
         );
 
         Flash::set('succes', 'Votre demande est enregistrée ! Un e-mail de vérification vient de vous être envoyé : cliquez sur le lien qu\'il contient pour finaliser votre inscription.');
-        redirect('/');
+        redirect('/inscription');
     }
 
     /** Étape 3 : vérification, création du compte apprenant et envoi des identifiants. */

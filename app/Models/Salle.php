@@ -15,6 +15,11 @@ final class Salle
         return Database::select('SELECT * FROM salles WHERE maintenance = 0 ORDER BY nom');
     }
 
+    public static function compterActives(): int
+    {
+        return (int) Database::selectOne('SELECT COUNT(*) AS n FROM salles WHERE maintenance = 0')['n'];
+    }
+
     public static function trouver(int $id): ?array
     {
         return Database::selectOne('SELECT * FROM salles WHERE id = ?', [$id]);
