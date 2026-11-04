@@ -262,7 +262,7 @@ a:hover { text-decoration: underline; }
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, rgba(16,24,66,.96) 0%, rgba(22,33,92,.90) 45%, rgba(28,43,107,.70) 100%);
+    background: linear-gradient(100deg, rgba(16,24,66,.97) 0%, rgba(22,33,92,.93) 45%, rgba(28,43,107,.75) 100%);
 }
 
 .hero-contenu {
@@ -275,32 +275,33 @@ a:hover { text-decoration: underline; }
 
 .hero-badge {
     display: inline-block;
-    background: rgba(255,255,255,.14);
-    border: 1px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.35);
     color: #fff;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 6px 16px;
+    padding: 8px 18px;
     border-radius: 999px;
-    margin-bottom: 22px;
+    margin-bottom: 28px;
 }
 
 .hero h1 {
     color: #fff;
-    font-size: clamp(30px, 4.6vw, 50px);
-    line-height: 1.12;
+    font-size: clamp(40px, 6vw, 62px);
+    line-height: 1.15;
     font-weight: 800;
-    letter-spacing: -.5px;
-    text-shadow: 0 2px 8px rgba(0,0,0,.3);
+    letter-spacing: -.8px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.4);
 }
 
 .hero-texte {
     color: #fff;
-    font-size: 17px;
-    line-height: 1.65;
-    margin: 18px 0 30px;
+    font-size: 19px;
+    line-height: 1.75;
+    margin: 24px 0 36px;
     max-width: 560px;
     font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 .hero-cta {
@@ -310,9 +311,9 @@ a:hover { text-decoration: underline; }
 }
 
 .hero-reassurance {
-    color: #f0f3ff;
-    font-size: 12.5px;
-    margin-top: 20px;
+    color: #fff;
+    font-size: 13.5px;
+    margin-top: 24px;
     font-weight: 500;
 }
 
@@ -930,8 +931,8 @@ details.mail .corps { margin-top: 12px; border-top: 1px dashed var(--gris-bordur
     .carousel-prev { left: 8px; }
     .carousel-next { right: 8px; }
     .hero-contenu { padding-top: 32px; padding-bottom: 32px; }
-    .hero h1 { font-size: clamp(20px, 5vw, 28px); }
-    .hero-texte { font-size: 15px; }
+    .hero h1 { font-size: clamp(24px, 6vw, 36px); }
+    .hero-texte { font-size: 16px; }
     .hero-cta { flex-direction: column; }
     .hero-cta .btn { width: 100%; }
     .indicator { width: 10px; height: 10px; }
