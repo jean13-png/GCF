@@ -1,24 +1,60 @@
 <?php $titrePage = 'Accueil'; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
-<!-- ═══════════ Hero ═══════════ -->
-<section class="hero" style="background-image:url('<?= asset('img/hero.jpg') ?>');">
-    <div class="hero-overlay"></div>
-    <div class="conteneur hero-contenu">
-        <span class="hero-badge">Formations 100 % numérique · Inscription en ligne</span>
-        <h1>Le numérique,<br>au cœur de votre réussite.</h1>
-        <p class="hero-texte">
-            Formez-vous avec des professionnels, à votre rythme : bureautique, développement web,
-            cybersécurité, réseaux. Ou louez nos salles équipées pour vos événements,
-            avec confirmation en ligne.
-        </p>
-        <div class="hero-cta">
-            <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">S'inscrire à une formation</a>
-            <a class="btn btn-contour btn-grand" href="<?= url('/reserver') ?>">Réserver une salle</a>
+<!-- ═══════════ Hero Carousel ═══════════ -->
+<section class="hero-carousel">
+    <div class="carousel-slides">
+        <!-- Slide 1: Formations -->
+        <div class="slide slide-formations" style="background-image:url('<?= asset('img/hero.jpg') ?>');">
+            <div class="hero-overlay"></div>
+            <div class="conteneur hero-contenu">
+                <span class="hero-badge"><i class="fas fa-book"></i> Formations 100 % numérique · Inscription en ligne</span>
+                <h1>Montez en compétences<br>avec nos formations.</h1>
+                <p class="hero-texte">
+                    Formez-vous avec des professionnels, à votre rythme : bureautique, développement web,
+                    cybersécurité, réseaux informatiques. Inscriptions en ligne, identifiants reçus par e-mail.
+                </p>
+                <div class="hero-cta">
+                    <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">S'inscrire à une formation</a>
+                </div>
+                <p class="hero-reassurance">
+                    <i class="fas fa-check"></i> Inscription en quelques clics · <i class="fas fa-envelope"></i> Identifiants reçus par e-mail
+                </p>
+            </div>
         </div>
-        <p class="hero-reassurance">
-            Inscription en quelques clics · Vérification immédiate par e-mail · Identifiants reçus par e-mail
-        </p>
+
+        <!-- Slide 2: Réservation de salles -->
+        <div class="slide slide-salles" style="background-image:url('<?= asset('img/salles.jpg') ?>');">
+            <div class="hero-overlay"></div>
+            <div class="conteneur hero-contenu">
+                <span class="hero-badge"><i class="fas fa-door-open"></i> Salles équipées · Réservation en ligne</span>
+                <h1>Réservez nos salles<br>pour vos événements.</h1>
+                <p class="hero-texte">
+                    Conférences, séminaires, réunions ou formations : déposez votre demande en ligne à l'heure précise.
+                    Nos salles sont équipées de vidéoprojecteur, sonorisation et wifi. Confirmation du gestionnaire sous 24h.
+                </p>
+                <div class="hero-cta">
+                    <a class="btn btn-primaire btn-grand" href="<?= url('/reserver') ?>">Demander une réservation</a>
+                </div>
+                <p class="hero-reassurance">
+                    <i class="fas fa-check"></i> Réservation à l'heure précise · <i class="fas fa-bell"></i> Confirmé par e-mail
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contrôles du carousel -->
+    <button class="carousel-btn carousel-prev" type="button" aria-label="Slide précédente">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="carousel-btn carousel-next" type="button" aria-label="Slide suivante">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Indicateurs -->
+    <div class="carousel-indicators">
+        <button class="indicator active" data-slide="0" aria-label="Formations"></button>
+        <button class="indicator" data-slide="1" aria-label="Réservation de salles"></button>
     </div>
 </section>
 

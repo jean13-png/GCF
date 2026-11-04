@@ -1,6 +1,72 @@
 /* GCF · interactions légères (menus, confirmations, flash auto) */
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ── Carousel (Hero) ──────────────────────────────────────────
+    var carousel = document.querySelector('.hero-carousel');
+    if (carousel) {
+        var slides = document.querySelectorAll('.slide');
+        var indicators = document.querySelectorAll('.indicator');
+        var currentSlide = 0;
+        var autoPlayInterval;
+
+        function showSlide(n) {
+            slides.forEach(function (s) { s.classList.remove('active'); });
+            indicators.forEach(function (i) { i.classList.remove('active'); });
+
+            slides[n].classList.add('active');
+            indicators[n].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, 6000);
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+
+        // Événements des boutons
+        document.querySelector('.carousel-next').addEventListener('click', function () {
+            stopAutoPlay();
+            nextSlide();
+            startAutoPlay();
+        });
+
+        document.querySelector('.carousel-prev').addEventListener('click', function () {
+            stopAutoPlay();
+            prevSlide();
+            startAutoPlay();
+        });
+
+        // Indicateurs
+        indicators.forEach(function (indicator, index) {
+            indicator.addEventListener('click', function () {
+                stopAutoPlay();
+                currentSlide = index;
+                showSlide(currentSlide);
+                startAutoPlay();
+            });
+        });
+
+        // Initialiser
+        showSlide(currentSlide);
+        startAutoPlay();
+
+        // Arrêter l'autoplay au survol
+        carousel.addEventListener('mouseenter', stopAutoPlay);
+        carousel.addEventListener('mouseleave', startAutoPlay);
+    }
+
     // Sidebar en tiroir sur téléphone (espace connecté)
     var burger = document.querySelector('.contenu-app .burger, .topbar .burger');
     var sidebar = document.querySelector('.sidebar');
