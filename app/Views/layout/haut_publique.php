@@ -35,11 +35,12 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
                 <a href="<?= url('/#salles') ?>">Nos salles</a>
                 <a href="<?= url('/#etapes') ?>">Comment ça marche</a>
                 <a href="<?= url('/#contact') ?>">Contact</a>
-                <div class="menu-public-actions">
-                    <a class="btn btn-discret" href="<?= url('/login') ?>">Espace personnel</a>
-                    <a class="btn btn-primaire" href="<?= url('/inscription') ?>">S'inscrire</a>
-                </div>
             </nav>
+
+            <div class="menu-public-actions">
+                <a class="btn btn-discret" href="<?= url('/login') ?>">Espace personnel</a>
+                <a class="btn btn-primaire" href="<?= url('/inscription') ?>">S'inscrire</a>
+            </div>
 
             <button class="burger" type="button" aria-label="Ouvrir le menu"><i class="fas fa-bars"></i></button>
         </div>
