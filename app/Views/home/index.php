@@ -22,28 +22,6 @@
     </div>
 </section>
 
-<!-- ═══════════ Chiffres clés ═══════════ -->
-<section class="stats-bandeau">
-    <div class="conteneur stats-grille">
-        <div class="stat-carte">
-            <div class="stat-valeur"><?= (int) $stats['salles'] ?></div>
-            <div class="stat-libelle">Salles équipées<br>et disponibles</div>
-        </div>
-        <div class="stat-carte">
-            <div class="stat-valeur"><?= (int) $stats['formations'] ?></div>
-            <div class="stat-libelle">Formations<br>au catalogue</div>
-        </div>
-        <div class="stat-carte">
-            <div class="stat-valeur"><?= (int) $stats['sessions'] ?></div>
-            <div class="stat-libelle">Sessions ouvertes<br>aux inscriptions</div>
-        </div>
-        <div class="stat-carte">
-            <div class="stat-valeur"><?= (int) $stats['apprenants'] ?></div>
-            <div class="stat-libelle">Apprenants<br>inscrits</div>
-        </div>
-    </div>
-</section>
-
 <!-- ═══════════ Nos formations ═══════════ -->
 <section class="section" id="formations">
     <div class="conteneur">
