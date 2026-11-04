@@ -262,7 +262,7 @@ a:hover { text-decoration: underline; }
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, rgba(16,24,66,.94) 0%, rgba(22,33,92,.82) 45%, rgba(28,43,107,.45) 100%);
+    background: linear-gradient(100deg, rgba(16,24,66,.96) 0%, rgba(22,33,92,.90) 45%, rgba(28,43,107,.70) 100%);
 }
 
 .hero-contenu {
@@ -291,14 +291,16 @@ a:hover { text-decoration: underline; }
     line-height: 1.12;
     font-weight: 800;
     letter-spacing: -.5px;
+    text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 
 .hero-texte {
-    color: #d9def4;
+    color: #fff;
     font-size: 17px;
     line-height: 1.65;
     margin: 18px 0 30px;
     max-width: 560px;
+    font-weight: 500;
 }
 
 .hero-cta {
@@ -308,9 +310,10 @@ a:hover { text-decoration: underline; }
 }
 
 .hero-reassurance {
-    color: #b9c2e8;
+    color: #f0f3ff;
     font-size: 12.5px;
     margin-top: 20px;
+    font-weight: 500;
 }
 
 /* Contrôles du carousel */
