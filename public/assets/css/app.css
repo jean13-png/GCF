@@ -285,7 +285,7 @@ a:hover { text-decoration: underline; }
     margin-bottom: 28px;
 }
 
-.hero h1 {
+.hero h1, .slide h1 {
     color: #fff;
     font-size: clamp(40px, 6vw, 62px);
     line-height: 1.15;
