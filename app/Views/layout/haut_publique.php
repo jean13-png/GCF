@@ -21,17 +21,6 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
 <body>
 <div class="publique">
 
-    <!-- Bandeau d'informations -->
-    <div class="topbar-info">
-        <div class="conteneur topbar-info-inner">
-            <div class="topbar-info-gauche">
-                <span><i class="fas fa-envelope"></i> &nbsp;<?= e(config('mail.from')) ?></span>
-                <span class="separe"><i class="fas fa-calendar"></i> &nbsp;Du lundi au samedi · 8h à 18h</span>
-            </div>
-            <div class="topbar-info-droite">Centre de formation professionnelle · Numérique</div>
-        </div>
-    </div>
-
     <!-- Navigation principale -->
     <header class="navbar-publique">
         <div class="conteneur navbar-inner">

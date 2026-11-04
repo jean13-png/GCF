@@ -193,13 +193,6 @@ a:hover { text-decoration: underline; }
 .publique { min-height: 100vh; display: flex; flex-direction: column; }
 .publique-corps { flex: 1; padding: 34px 0 60px; }
 
-/* Bandeau d'informations (tout en haut) */
-.topbar-info { background: #121a45; color: #c7cdea; font-size: 12.5px; }
-.topbar-info-inner { display: flex; justify-content: space-between; align-items: center; min-height: 36px; gap: 12px; flex-wrap: wrap; padding-top: 4px; padding-bottom: 4px; }
-.topbar-info-gauche { display: flex; gap: 18px; flex-wrap: wrap; }
-.topbar-info .separe {} 
-.topbar-info-droite { opacity: .8; }
-
 /* Navigation principale */
 .navbar-publique {
     background: var(--bleu);

@@ -31,13 +31,6 @@
                     <li><a href="<?= url('/#formations') ?>">Réseaux et maintenance</a></li>
                 </ul>
             </div>
-            <div class="footer-col">
-                <h4>Contact</h4>
-                <ul class="footer-contact">
-                    <li>✉ &nbsp;<?= e(config('mail.from')) ?></li>
-                    <li>🕘 &nbsp;Du lundi au samedi<br>&nbsp;&nbsp;&nbsp;&nbsp;8h à 18h</li>
-                </ul>
-            </div>
         </div>
         <div class="footer-bas">
             <div class="conteneur footer-bas-inner">
