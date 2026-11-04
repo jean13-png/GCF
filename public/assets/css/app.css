@@ -191,7 +191,7 @@ a:hover { text-decoration: underline; }
 .conteneur { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
 
 .publique { min-height: 100vh; display: flex; flex-direction: column; }
-.publique-corps { flex: 1; padding: 34px 0 60px; }
+.publique-corps { flex: 1; padding: 0 0 60px; }
 
 /* Navigation principale */
 .navbar-publique {
@@ -542,7 +542,7 @@ a:hover { text-decoration: underline; }
 
 /* Pied de page */
 .footer-publique { background: #10173d; color: #aab3d8; margin-top: auto; }
-.footer-colonnes { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 38px; padding: 54px 22px 40px; }
+.footer-colonnes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; padding: 54px 22px 40px; }
 .footer-col h4 { color: #fff; font-size: 14.5px; margin-bottom: 16px; font-weight: 700; }
 .footer-col ul { list-style: none; display: grid; gap: 9px; }
 .footer-col a { color: #aab3d8; font-size: 13.5px; text-decoration: none !important; }

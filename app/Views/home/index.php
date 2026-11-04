@@ -76,11 +76,21 @@
             <?php
             $niveauLib = ['DEBUTANT' => 'Débutant', 'INTERMEDIAIRE' => 'Intermédiaire', 'AVANCE' => 'Avancé'];
             $niveauCls = ['DEBUTANT' => 'badge-libre', 'INTERMEDIAIRE' => 'badge-reserve', 'AVANCE' => 'badge-occupe'];
+            
+            // Attribution des images uniques par titre de formation
+            $imagePorFormation = [
+                'Initiation à l\'informatique' => 'formation-bureautique.jpg',
+                'Bureautique professionnelle : Word, Excel, PowerPoint' => 'formation-bureautique.jpg',
+                'Internet et outils numériques' => 'formation-bureautique.jpg',
+                'Développement web : HTML, CSS et JavaScript' => 'formation-web.jpg',
+                'Créer son site avec WordPress' => 'formation-wordpress.jpg',
+                'Cybersécurité : se protéger au quotidien' => 'formation-securite.jpg',
+                'Réseaux informatiques : les fondamentaux' => 'formation-reseaux.jpg',
+                'Maintenance et dépannage des ordinateurs' => 'formation-maintenance.jpg',
+            ];
+            
             foreach ($formations as $f):
-                $image = str_contains($f['theme'], 'Bureautique') || str_contains($f['theme'], 'Culture')
-                    ? 'formation-bureautique.jpg'
-                    : (str_contains($f['theme'], 'Développement') ? 'formation-web.jpg'
-                    : (str_contains($f['theme'], 'Sécurité') ? 'formation-securite.jpg' : 'formation-reseaux.jpg'));
+                $image = $imagePorFormation[$f['titre']] ?? 'formation-web.jpg';
             ?>
                 <article class="carte-formation">
                     <div class="carte-formation-img" style="background-image:url('<?= asset('img/' . $image) ?>');">
