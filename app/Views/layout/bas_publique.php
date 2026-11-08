@@ -5,7 +5,7 @@
         <div class="conteneur footer-colonnes">
             <div class="footer-col">
                 <a class="marque" href="<?= url('/') ?>">
-                    <span class="logo">GCF</span>
+                    <span class="logo">CF</span>
                     <span class="marque-texte">Centre de<br>Formation</span>
                 </a>
                 <p class="footer-pitch">
@@ -51,7 +51,7 @@
         </div>
         <div class="footer-bas">
             <div class="conteneur footer-bas-inner">
-                <span>© <?= date('Y') ?> GCF · Gestion Centre de Formation. Tous droits réservés.</span>
+                <span>© <?= date('Y') ?> Centre de formation · ONG Global Actions Solidarité. Tous droits réservés.</span>
                 <a href="<?= url('/login') ?>">Connexion</a>
             </div>
         </div>

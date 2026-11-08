@@ -23,6 +23,7 @@ $classesStatut = ['EN_ATTENTE' => 'evt-attente', 'CONFIRMEE' => 'evt-confirme', 
             <?php endif; ?>
         </div>
         <div style="font-size:12px;color:var(--gris-doux);">
+            <span class="badge badge-libre">Libre</span>
             <span class="badge badge-attente">En attente</span>
             <span class="badge badge-reserve">Réservé</span>
             <span class="badge badge-occupe">Occupé</span>
@@ -48,7 +49,12 @@ $classesStatut = ['EN_ATTENTE' => 'evt-attente', 'CONFIRMEE' => 'evt-confirme', 
                     <?php
                     $eventsDuJour = $grille[$salle['id']][$index] ?? [];
                     ?>
-                    <div class="case-jour <?= $eventsDuJour === [] ? 'vide' : '' ?> <?= $index >= 5 ? 'weekend' : '' ?>">
+                    <div class="case-jour <?= $eventsDuJour === [] ? 'vide' : '' ?> <?= $index >= 5 ? 'weekend' : '' ?>"
+                         role="button" tabindex="0"
+                         data-salle-id="<?= (int) $salle['id'] ?>"
+                         data-salle-nom="<?= e($salle['nom']) ?>"
+                         data-date="<?= e($j->format('Y-m-d')) ?>"
+                         title="Cliquez pour voir la journée et programmer un créneau libre">
                         <?php foreach ($eventsDuJour as $evt): ?>
                             <div class="evt <?= e($classesStatut[$evt['statut']] ?? '') ?>" title="<?= e($evt['evenement']) ?> · <?= e($evt['demandeur_nom']) ?>">
                                 <span class="evt-heure"><?= e(format_heure($evt['heure_debut'])) ?>–<?= e(format_heure($evt['heure_fin'])) ?></span>
@@ -60,7 +66,26 @@ $classesStatut = ['EN_ATTENTE' => 'evt-attente', 'CONFIRMEE' => 'evt-confirme', 
             <?php endforeach; ?>
         </div>
     </div>
-    <p class="aide-champ" style="margin-top:12px;">Une case vide signifie que la salle est libre ce jour-là. Survolez un créneau pour voir le détail.</p>
+    <p class="aide-champ" style="margin-top:12px;">Cliquez sur une case pour ouvrir la journée : statut de chaque créneau horaire et programmation des heures libres. Une case vide signifie que la salle est libre toute la journée.</p>
 </div>
+
+<!-- ═══════════ Modal : journée d'une salle ═══════════ -->
+<div class="pj-voile" id="pjVoile" hidden
+     data-url-jour="<?= url('/planning/jour') ?>"
+     data-url-programmer="<?= url('/planning/programmer') ?>">
+    <div class="pj-modal" role="dialog" aria-modal="true" aria-labelledby="pjTitre">
+        <div class="pj-entete">
+            <h3 id="pjTitre">Journée</h3>
+            <button type="button" class="pj-fermer" id="pjFermer" aria-label="Fermer">&times;</button>
+        </div>
+        <div class="pj-corps" id="pjCorps">
+            <p class="pj-chargement">Chargement de la journée…</p>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="pjCsrf" value="<?= e(\App\Core\CSRF::token()) ?>">
+<input type="hidden" id="pjOrganisateur" value="<?= e(trim(($utilisateur['prenom'] ?? '') . ' ' . ($utilisateur['nom'] ?? ''))) ?>">
+
+<script src="<?= asset('js/planning-jour.js') ?>"></script>
 
 <?php require dirname(__DIR__) . '/layout/bas.php'; ?>

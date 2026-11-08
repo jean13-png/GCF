@@ -12,6 +12,8 @@
         qui vérifie l'absence de conflit d'horaires. Le demandeur est informé par e-mail à chaque étape.
     </div>
 
+    <?php require __DIR__ . '/_disponibilites.php'; ?>
+
     <form method="post" action="<?= url('/reservations/enregistrer') ?>">
         <?= csrf_champ() ?>
         <div class="form-grille">

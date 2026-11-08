@@ -65,7 +65,7 @@ final class Router
         $couleur = $code === 403 ? '#b3121a' : '#1c2b6b';
         echo "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"utf-8\">"
             . "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-            . "<title>$titre · GCF</title>"
+            . "<title>$titre · Centre de formation</title>"
             . "<style>body{font-family:system-ui,sans-serif;background:#f4f6fb;margin:0;display:grid;place-items:center;min-height:100vh;color:#222}"
             . ".box{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(20,30,80,.08);padding:48px 40px;max-width:420px;text-align:center}"
             . ".code{font-size:56px;font-weight:800;color:$couleur}h1{font-size:20px;margin:8px 0 4px}p{color:#667;line-height:1.5}"

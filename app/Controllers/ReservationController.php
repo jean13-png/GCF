@@ -31,13 +31,27 @@ final class ReservationController
     /** Formulaire interne (personnel du centre connecté). */
     public function form(): void
     {
-        view('reservations/form', ['salles' => Salle::actives()]);
+        view('reservations/form', [
+            'salles' => Salle::actives(),
+            'dispo'  => self::consommerPropositions(),
+        ]);
     }
 
     /** Formulaire public de demande de réservation (page d'accueil → Réserver une salle). */
     public function formPublique(): void
     {
-        view('reservations/publique', ['salles' => Salle::actives()]);
+        view('reservations/publique', [
+            'salles' => Salle::actives(),
+            'dispo'  => self::consommerPropositions(),
+        ]);
+    }
+
+    /** Récupère (une seule fois) les propositions de disponibilité nées d'un refus de conflit. */
+    private static function consommerPropositions(): ?array
+    {
+        $dispo = $_SESSION['dispo_conflit'] ?? null;
+        unset($_SESSION['dispo_conflit']);
+        return $dispo;
     }
 
     public function enregistrer(): void
@@ -86,7 +100,22 @@ final class ReservationController
         }
 
         if (Reservation::conflitExiste((int) $_POST['salle_id'], $_POST['date_reservation'], $_POST['heure_debut'], $_POST['heure_fin'], null)) {
-            Flash::set('erreur', 'Conflit d\'horaires : cette salle a déjà une réservation sur ce créneau. Choisissez un autre créneau.');
+            // Refus + propositions concrètes : créneaux libres du jour et prochaines dates disponibles.
+            $_SESSION['dispo_conflit'] = [
+                'salle'        => $salle['nom'],
+                'date'         => $_POST['date_reservation'],
+                'debut'        => $_POST['heure_debut'],
+                'fin'          => $_POST['heure_fin'],
+                'propositions' => Reservation::propositions(
+                    (int) $_POST['salle_id'],
+                    $_POST['date_reservation'],
+                    $_POST['heure_debut'],
+                    $_POST['heure_fin']
+                ),
+            ];
+            Flash::set('erreur', 'Désolé, la salle ' . $salle['nom'] . ' est déjà réservée le '
+                . format_date_fr($_POST['date_reservation']) . ' de ' . format_heure($_POST['heure_debut'])
+                . ' à ' . format_heure($_POST['heure_fin']) . '. Les disponibilités vous sont proposées juste en dessous.');
             Flash::setOld($_POST);
             redirect($retour);
         }

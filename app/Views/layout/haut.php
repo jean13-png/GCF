@@ -26,7 +26,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= e($titrePage ?? 'GCF') ?> · GCF</title>
+<title><?= e($titrePage ?? 'Accueil') ?> · Centre de formation</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 </head>
@@ -35,7 +35,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
 
     <nav class="sidebar" aria-label="Navigation principale">
         <div class="sidebar-marque">
-            <span class="logo">GCF</span>
+            <span class="logo">CF</span>
             <h1>Centre de formation</h1>
             <p>Gestion · Salles · Formations</p>
         </div>
@@ -74,7 +74,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
                 <a href="<?= url('/mon-profil') ?>"<?= $actif('/mon-profil') ?>><span class="ic"><i class="fas fa-user"></i></span> Mon profil</a>
             <?php endif; ?>
         </div>
-        <div class="sidebar-pied">GCF · Gestion Centre de Formation</div>
+        <div class="sidebar-pied">Centre de formation · ONG-GAS</div>
     </nav>
 
     <div class="voile"></div>

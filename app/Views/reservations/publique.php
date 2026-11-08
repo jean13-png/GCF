@@ -10,6 +10,8 @@
         </p>
     </div>
 
+    <?php require __DIR__ . '/_disponibilites.php'; ?>
+
     <?php if ($salles === []): ?>
         <div class="encart-info">
             Aucune salle n'est disponible pour le moment (maintenance). Merci de réessayer plus tard.

@@ -112,6 +112,88 @@ final class Reservation
         return (int) Database::selectOne('SELECT COUNT(*) AS n FROM reservations WHERE statut = ?', [$statut])['n'];
     }
 
+    /* ═══════════════════════════════════════════════════════════════
+       Journée d'une salle : créneaux, disponibilités, programmation
+       ═══════════════════════════════════════════════════════════════ */
+
+    /** Réservations actives d'une salle pour une date précise (triées par heure). */
+    public static function duJour(int $salleId, string $date): array
+    {
+        $lignes = Database::select(
+            'SELECT * FROM reservations
+             WHERE salle_id = ? AND date_reservation = ?
+               AND statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE")
+             ORDER BY heure_debut',
+            [$salleId, $date]
+        );
+        // Heures normalisées au format HH:MM (MySQL renvoie HH:MM:SS)
+        foreach ($lignes as &$l) {
+            $l['heure_debut'] = substr($l['heure_debut'], 0, 5);
+            $l['heure_fin']   = substr($l['heure_fin'], 0, 5);
+        }
+        unset($l);
+        return $lignes;
+    }
+
+    /**
+     * Intervalles libres d'une salle sur une journée, entre l'ouverture et la fermeture.
+     * Retour : liste de ['debut' => '08:00', 'fin' => '12:00'].
+     */
+    public static function creneauxLibres(int $salleId, string $date, string $ouverture = '07:00', string $fermeture = '21:00'): array
+    {
+        $libres = [];
+        $curseur = $ouverture;
+        foreach (self::duJour($salleId, $date) as $resa) {
+            if ($resa['heure_debut'] > $curseur) {
+                $libres[] = ['debut' => $curseur, 'fin' => $resa['heure_debut']];
+            }
+            if ($resa['heure_fin'] > $curseur) {
+                $curseur = $resa['heure_fin'];
+            }
+        }
+        if ($curseur < $fermeture) {
+            $libres[] = ['debut' => $curseur, 'fin' => $fermeture];
+        }
+        return $libres;
+    }
+
+    /**
+     * Propositions quand un créneau est déjà pris :
+     * intervalles libres restants du jour + prochaines dates disponibles aux heures demandées.
+     */
+    public static function propositions(int $salleId, string $date, string $debut, string $fin, int $jours = 14): array
+    {
+        $datesAlternatives = [];
+        $essai = new \DateTime($date);
+        for ($i = 0; $i < $jours && count($datesAlternatives) < 4; $i++) {
+            $essai->modify('+1 day');
+            $jour = $essai->format('Y-m-d');
+            if (!self::conflitExiste($salleId, $jour, $debut, $fin, null)) {
+                $datesAlternatives[] = $jour;
+            }
+        }
+        return [
+            'creneaux_libres'    => self::creneauxLibres($salleId, $date),
+            'dates_alternatives' => $datesAlternatives,
+        ];
+    }
+
+    /**
+     * L'administration programme directement un événement depuis le planning :
+     * la réservation naît « Réservé » (CONFIRMEE), sans passage par « En attente ».
+     */
+    public static function creerAdmin(array $d): int
+    {
+        $id = Database::insert(
+            'INSERT INTO reservations (salle_id, demandeur_nom, demandeur_organisation, demandeur_email, demandeur_telephone, evenement, date_reservation, heure_debut, heure_fin, nb_personnes, statut, traite_par)
+             VALUES (?, ?, NULL, NULL, NULL, ?, ?, ?, ?, ?, "CONFIRMEE", ?)',
+            [$d['salle_id'], $d['demandeur_nom'], $d['evenement'], $d['date_reservation'], $d['heure_debut'], $d['heure_fin'],
+             $d['nb_personnes'] !== '' ? (int) $d['nb_personnes'] : null, Auth::id()]
+        );
+        self::journaliserEvent($id, 'CONFIRMEE', 'Programmé depuis le planning par l\'administration');
+        return $id;
+    }
+
     public static function aVenir(int $limite = 8): array
     {
         return Database::select(
