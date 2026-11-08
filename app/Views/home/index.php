@@ -19,8 +19,8 @@
             au niveau avancé. Inscrivez-vous en ligne et recevez vos identifiants par e-mail.
         </p>
         <div class="accueil-hero-cta">
-            <a class="btn btn-blanc btn-grand" href="<?= url('/inscription') ?>">
-                <i class="fas fa-graduation-cap" aria-hidden="true"></i>&nbsp; S'inscrire à une formation
+            <a class="btn btn-blanc btn-grand" href="#formations">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>&nbsp; Choisir une formation
             </a>
             <a class="btn btn-contour-clair btn-grand" href="<?= url('/reserver') ?>">
                 <i class="fas fa-door-open" aria-hidden="true"></i>&nbsp; Réserver une salle
@@ -180,7 +180,7 @@
                 <li><span class="atout-ic"><i class="fas fa-user-shield" aria-hidden="true"></i></span> Dossier suivi dans l'espace personnel : dates, horaires, salle, formateur</li>
             </ul>
             <div class="accueil-hero-cta accueil-cta-start">
-                <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">Choisir ma formation</a>
+                <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">S'inscrire à une formation</a>
             </div>
         </div>
     </div>

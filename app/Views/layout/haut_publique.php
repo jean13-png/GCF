@@ -41,11 +41,6 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
                 </div>
             </nav>
 
-            <div class="menu-public-actions">
-                <a class="btn btn-discret" href="<?= url('/login') ?>">Espace personnel</a>
-                <a class="btn btn-primaire" href="<?= url('/inscription') ?>">S'inscrire</a>
-            </div>
-
             <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
         </div>
     </header>
