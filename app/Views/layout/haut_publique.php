@@ -42,9 +42,11 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
                 <a class="btn btn-primaire" href="<?= url('/inscription') ?>">S'inscrire</a>
             </div>
 
-            <button class="burger" type="button" aria-label="Ouvrir le menu"><i class="fas fa-bars"></i></button>
+            <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
         </div>
     </header>
+
+    <div class="voile" id="voilePublic"></div>
 
     <main class="publique-corps">
         <?php foreach (App\Core\Flash::tous() as $flash): ?>

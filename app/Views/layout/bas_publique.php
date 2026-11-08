@@ -31,6 +31,23 @@
                     <li><a href="<?= url('/#formations') ?>">Réseaux et maintenance</a></li>
                 </ul>
             </div>
+            <div class="footer-col footer-contact" id="contact">
+                <h4>Nous contacter</h4>
+                <ul>
+                    <li>
+                        <i class="fas fa-location-dot" aria-hidden="true"></i>
+                        <span>Cotonou, quartier Akpakpa<br>à proximité de la zone industrielle</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone" aria-hidden="true"></i>
+                        <a href="tel:+2290146466656">+229 01 46 46 66 56</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        <span>Lundi au samedi,<br>07h à 21h</span>
+                    </li>
+                </ul>
+            </div>
         </div>
         <div class="footer-bas">
             <div class="conteneur footer-bas-inner">

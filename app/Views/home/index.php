@@ -1,72 +1,77 @@
 <?php $titrePage = 'Accueil'; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
-<!-- ═══════════ Hero Carousel ═══════════ -->
-<section class="hero-carousel">
-    <div class="carousel-slides">
-        <!-- Slide 1: Formations -->
-        <div class="slide slide-formations" style="background-image:url('<?= asset('img/hero.jpg') ?>');">
-            <div class="hero-overlay"></div>
-            <div class="conteneur hero-contenu">
-                <span class="hero-badge"><i class="fas fa-book"></i> Formations 100 % numérique · Inscription en ligne</span>
-                <h1>Montez en compétences<br>avec nos formations.</h1>
-                <p class="hero-texte">
-                    Formez-vous avec des professionnels, à votre rythme : bureautique, développement web,
-                    cybersécurité, réseaux informatiques. Inscriptions en ligne, identifiants reçus par e-mail.
-                </p>
-                <div class="hero-cta">
-                    <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">S'inscrire à une formation</a>
-                </div>
-                <p class="hero-reassurance">
-                    <i class="fas fa-check"></i> Inscription en quelques clics · <i class="fas fa-envelope"></i> Identifiants reçus par e-mail
-                </p>
-            </div>
+<!-- ═══════════════════════════════════════════════════════════════
+     Hero : promesse du centre sur photo réelle, avec chiffres clés
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="accueil-hero">
+    <img class="accueil-hero-img" src="<?= asset('img/hero.jpg') ?>" alt="Apprenants en formation informatique devant les ordinateurs du centre" width="1920" height="1080" fetchpriority="high" decoding="async">
+    <div class="accueil-hero-voile" aria-hidden="true"></div>
+    <div class="conteneur accueil-hero-contenu">
+        <span class="accueil-badge">
+            <i class="fas fa-location-dot" aria-hidden="true"></i>
+            Centre de formation professionnelle · Cotonou
+        </span>
+        <h1>Apprendre le numérique,<br>bâtir son avenir.</h1>
+        <p class="accueil-hero-texte">
+            Bureautique, développement web, cybersécurité, réseaux, maintenance :
+            des parcours pratiques animés par des professionnels, du grand débutant
+            au niveau avancé. Inscrivez-vous en ligne et recevez vos identifiants par e-mail.
+        </p>
+        <div class="accueil-hero-cta">
+            <a class="btn btn-blanc btn-grand" href="<?= url('/inscription') ?>">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>&nbsp; S'inscrire à une formation
+            </a>
+            <a class="btn btn-contour-clair btn-grand" href="<?= url('/reserver') ?>">
+                <i class="fas fa-door-open" aria-hidden="true"></i>&nbsp; Réserver une salle
+            </a>
         </div>
-
-        <!-- Slide 2: Réservation de salles -->
-        <div class="slide slide-salles" style="background-image:url('<?= asset('img/salles.jpg') ?>');">
-            <div class="hero-overlay"></div>
-            <div class="conteneur hero-contenu">
-                <span class="hero-badge"><i class="fas fa-door-open"></i> Salles équipées · Réservation en ligne</span>
-                <h1>Réservez nos salles<br>pour vos événements.</h1>
-                <p class="hero-texte">
-                    Conférences, séminaires, réunions ou formations : déposez votre demande en ligne à l'heure précise.
-                    Nos salles sont équipées de vidéoprojecteur, sonorisation et wifi. Confirmation du gestionnaire sous 24h.
-                </p>
-                <div class="hero-cta">
-                    <a class="btn btn-primaire btn-grand" href="<?= url('/reserver') ?>">Demander une réservation</a>
-                </div>
-                <p class="hero-reassurance">
-                    <i class="fas fa-check"></i> Réservation à l'heure précise · <i class="fas fa-bell"></i> Confirmé par e-mail
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contrôles du carousel -->
-    <button class="carousel-btn carousel-prev" type="button" aria-label="Slide précédente">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="carousel-btn carousel-next" type="button" aria-label="Slide suivante">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-
-    <!-- Indicateurs -->
-    <div class="carousel-indicators">
-        <button class="indicator active" data-slide="0" aria-label="Formations"></button>
-        <button class="indicator" data-slide="1" aria-label="Réservation de salles"></button>
+        <ul class="accueil-garanties">
+            <li><i class="fas fa-circle-check" aria-hidden="true"></i> Inscription 100 % en ligne</li>
+            <li><i class="fas fa-envelope" aria-hidden="true"></i> Identifiants par e-mail</li>
+            <li><i class="fas fa-clock" aria-hidden="true"></i> Salles à l'heure près</li>
+        </ul>
     </div>
 </section>
 
-<!-- ═══════════ Nos formations ═══════════ -->
+<!-- Chiffres clés réels, posés à cheval sur le bas du hero -->
+<section class="accueil-stats" aria-label="Le centre en chiffres">
+    <div class="conteneur stats-grille">
+        <div class="stat-carte reveal">
+            <span class="stat-ic"><i class="fas fa-chalkboard-user" aria-hidden="true"></i></span>
+            <span class="stat-valeur"><span data-compteur="<?= (int) $stats['formations'] ?>">0</span></span>
+            <span class="stat-libelle">formations<br>au catalogue</span>
+        </div>
+        <div class="stat-carte reveal">
+            <span class="stat-ic"><i class="fas fa-user-graduate" aria-hidden="true"></i></span>
+            <span class="stat-valeur"><span data-compteur="<?= (int) $stats['apprenants'] ?>">0</span></span>
+            <span class="stat-libelle">apprenants<br>inscrits</span>
+        </div>
+        <div class="stat-carte reveal">
+            <span class="stat-ic"><i class="fas fa-building-columns" aria-hidden="true"></i></span>
+            <span class="stat-valeur"><span data-compteur="<?= (int) $stats['salles'] ?>">0</span></span>
+            <span class="stat-libelle">salles équipées<br>et climatisées</span>
+        </div>
+        <div class="stat-carte reveal">
+            <span class="stat-ic"><i class="fas fa-calendar-check" aria-hidden="true"></i></span>
+            <span class="stat-valeur"><span data-compteur="<?= (int) $stats['sessions'] ?>">0</span></span>
+            <span class="stat-libelle">sessions ouvertes<br>à l'inscription</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Catalogue des formations
+     ═══════════════════════════════════════════════════════════════ -->
 <section class="section" id="formations">
     <div class="conteneur">
         <div class="section-entete">
             <div>
                 <span class="section-etiquette">Catalogue</span>
-                <h2 class="section-titre">Nos formations dans le numérique</h2>
+                <h2 class="section-titre">Des formations pour tous les niveaux</h2>
                 <p class="section-sous-titre">
-                    Des parcours complets, du grand débutant au niveau avancé, animés par des formateurs professionnels.
+                    Chaque parcours mêle les bases essentielles et la pratique sur machines,
+                    en petits groupes, avec un formateur professionnel.
                 </p>
             </div>
             <a class="btn btn-bleu" href="<?= url('/inscription') ?>">Voir les sessions et s'inscrire</a>
@@ -75,43 +80,53 @@
         <div class="cartes-formations">
             <?php
             $niveauLib = ['DEBUTANT' => 'Débutant', 'INTERMEDIAIRE' => 'Intermédiaire', 'AVANCE' => 'Avancé'];
-            $niveauCls = ['DEBUTANT' => 'badge-libre', 'INTERMEDIAIRE' => 'badge-reserve', 'AVANCE' => 'badge-occupe'];
-            
-            // Attribution des images uniques par titre de formation
-            $imagePorFormation = [
-                'Initiation à l\'informatique' => 'formation-bureautique.jpg',
-                'Bureautique professionnelle : Word, Excel, PowerPoint' => 'formation-bureautique.jpg',
-                'Internet et outils numériques' => 'formation-bureautique.jpg',
-                'Développement web : HTML, CSS et JavaScript' => 'formation-web.jpg',
-                'Créer son site avec WordPress' => 'formation-wordpress.jpg',
-                'Cybersécurité : se protéger au quotidien' => 'formation-securite.jpg',
-                'Réseaux informatiques : les fondamentaux' => 'formation-reseaux.jpg',
-                'Maintenance et dépannage des ordinateurs' => 'formation-maintenance.jpg',
+            $niveauCls = ['DEBUTANT' => 'niveau-debutant', 'INTERMEDIAIRE' => 'niveau-intermediaire', 'AVANCE' => 'niveau-avance'];
+
+            // Une photo réelle par formation, selon son intitulé
+            $imageParFormation = [
+                'Initiation à l\'informatique'                              => 'formation-bureautique.jpg',
+                'Bureautique professionnelle : Word, Excel, PowerPoint'     => 'formation-bureautique.jpg',
+                'Internet et outils numériques'                             => 'formation-bureautique.jpg',
+                'Développement web : HTML, CSS et JavaScript'               => 'formation-web.jpg',
+                'Créer son site avec WordPress'                             => 'formation-wordpress.jpg',
+                'Cybersécurité : se protéger au quotidien'                  => 'formation-securite.jpg',
+                'Réseaux informatiques : les fondamentaux'                  => 'formation-reseaux.jpg',
+                'Maintenance et dépannage des ordinateurs'                  => 'formation-maintenance.jpg',
             ];
-            
+            $altParImage = [
+                'formation-bureautique.jpg'  => 'Apprenante en formation bureautique devant son ordinateur portable',
+                'formation-web.jpg'          => 'Développeur web au travail sur du code dans un bureau moderne',
+                'formation-wordpress.jpg'    => 'Création de site web sur écran d\'ordinateur',
+                'formation-securite.jpg'     => 'Cadenas de la sécurité informatique sur une porte bleue',
+                'formation-reseaux.jpg'      => 'Câbles réseau raccordés à une baie serveur',
+                'formation-maintenance.jpg'  => 'Réparation d\'une carte mère d\'ordinateur au tournevis',
+            ];
+
             foreach ($formations as $f):
-                $image = $imagePorFormation[$f['titre']] ?? 'formation-web.jpg';
+                $image = $imageParFormation[$f['titre']] ?? 'formation-web.jpg';
             ?>
-                <article class="carte-formation">
-                    <div class="carte-formation-img" style="background-image:url('<?= asset('img/' . $image) ?>');">
+                <article class="carte-formation reveal">
+                    <a class="carte-formation-visuel" href="<?= url('/inscription') ?>" tabindex="-1" aria-hidden="true">
+                        <img src="<?= asset('img/' . $image) ?>" alt="<?= e($altParImage[$image]) ?>" loading="lazy" decoding="async" width="800" height="500">
                         <span class="badge <?= e($niveauCls[$f['niveau']]) ?>"><?= e($niveauLib[$f['niveau']]) ?></span>
-                    </div>
+                    </a>
                     <div class="carte-formation-corps">
                         <span class="carte-formation-theme"><?= e($f['theme']) ?></span>
-                        <h3><?= e($f['titre']) ?></h3>
-                        <p><?= e(mb_substr($f['description'] ?? '', 0, 110)) ?><?= ($f['description'] && mb_strlen($f['description']) > 110) ? '…' : '' ?></p>
+                        <h3><a href="<?= url('/inscription') ?>"><?= e($f['titre']) ?></a></h3>
+                        <p><?= e(mb_substr($f['description'] ?? '', 0, 120)) ?><?= ($f['description'] && mb_strlen($f['description']) > 120) ? '…' : '' ?></p>
                         <div class="carte-formation-meta">
-                            <span><i class="fas fa-clock"></i> <?= (int) $f['duree_heures'] ?> heures</span>
+                            <span><i class="fas fa-clock" aria-hidden="true"></i> <?= (int) $f['duree_heures'] ?> heures</span>
                             <span class="carte-formation-prix"><?= format_fcfa($f['tarif']) ?></span>
                         </div>
+                        <a class="carte-formation-lien" href="<?= url('/inscription') ?>">S'inscrire <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
                     </div>
                 </article>
             <?php endforeach; ?>
         </div>
 
         <?php if ($sessionsOuvertes !== []): ?>
-            <div class="prochaines-sessions">
-                <h3><i class="fas fa-map-pin"></i> Prochaines sessions ouvertes</h3>
+            <div class="prochaines-sessions reveal">
+                <h3><i class="fas fa-map-pin" aria-hidden="true"></i> Prochaines sessions ouvertes</h3>
                 <ul>
                     <?php foreach ($sessionsOuvertes as $s): ?>
                         <li>
@@ -135,38 +150,87 @@
     </div>
 </section>
 
-<!-- ═══════════ Nos salles ═══════════ -->
-<section class="section section-teinte" id="salles">
-    <div class="conteneur split-salles">
-        <div class="split-image" style="background-image:url('<?= asset('img/salles.jpg') ?>');"></div>
-        <div class="split-contenu">
-            <span class="section-etiquette">Vos événements</span>
-            <h2 class="section-titre">Des salles équipées, prêtes pour vos événements</h2>
+<!-- ═══════════════════════════════════════════════════════════════
+     Notre approche : split photo formateur + atouts
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="section section-teinte" id="approche">
+    <div class="conteneur accueil-split">
+        <div class="accueil-split-media reveal">
+            <img src="<?= asset('img/formateur.jpg') ?>" alt="Formateur accompagnant des apprenants en salle de formation" loading="lazy" decoding="async" width="1100" height="1375">
+            <div class="accueil-split-carte">
+                <i class="fas fa-award" aria-hidden="true"></i>
+                <div>
+                    <strong>Attestation</strong>
+                    <span>remise en fin de formation</span>
+                </div>
+            </div>
+        </div>
+        <div class="accueil-split-texte">
+            <span class="section-etiquette">Notre approche</span>
+            <h2 class="section-titre">Apprendre par la pratique, à taille humaine</h2>
             <p class="section-sous-titre">
-                Conférences, séminaires, réunions ou formations : déposez votre demande en ligne
-                à l'heure près, et notre gestionnaire vous confirme après vérification du planning.
+                Ici, on ne reste pas spectateur : chaque notion travaillée se met
+                en pratique immédiatement sur les machines du centre.
             </p>
             <ul class="atouts">
-                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Réservation à l'heure précise, sans chevauchement possible</li>
-                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Salles équipées : vidéoprojecteur, sonorisation, climatisation, wifi</li>
-                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Statut en direct : en attente, réservé, occupé</li>
-                <li><span class="atout-ic"><i class="fas fa-check"></i></span> Confirmation et suivi notifiés par e-mail</li>
+                <li><span class="atout-ic"><i class="fas fa-users" aria-hidden="true"></i></span> Groupes restreints et accompagnement de chaque apprenant</li>
+                <li><span class="atout-ic"><i class="fas fa-chalkboard-user" aria-hidden="true"></i></span> Formateurs professionnels, en activité dans leur domaine</li>
+                <li><span class="atout-ic"><i class="fas fa-computer" aria-hidden="true"></i></span> Pratique sur les machines du centre, en salles climatisées</li>
+                <li><span class="atout-ic"><i class="fas fa-award" aria-hidden="true"></i></span> Attestation de fin de formation remise à chaque apprenant</li>
+                <li><span class="atout-ic"><i class="fas fa-user-shield" aria-hidden="true"></i></span> Dossier suivi dans l'espace personnel : dates, horaires, salle, formateur</li>
             </ul>
-            <div class="salles-chips">
-                <?php foreach ($salles as $s): ?>
-                    <span class="chip"><?= e($s['nom']) ?> · <?= (int) $s['capacite'] ?> places</span>
-                <?php endforeach; ?>
-            </div>
-            <div class="hero-cta" style="justify-content:flex-start;">
-                <a class="btn btn-primaire" href="<?= url('/reserver') ?>">Demander une réservation</a>
-                <span class="aide-champ" style="align-self:center;">Réponse du gestionnaire sous 24 h ouvrées</span>
+            <div class="accueil-hero-cta accueil-cta-start">
+                <a class="btn btn-primaire btn-grand" href="<?= url('/inscription') ?>">Choisir ma formation</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ═══════════ Comment ça marche ═══════════ -->
-<section class="section" id="etapes">
+<!-- ═══════════════════════════════════════════════════════════════
+     Salles : split inversé photo + équipements réels
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="salles">
+    <div class="conteneur accueil-split accueil-split-inversee">
+        <div class="accueil-split-texte">
+            <span class="section-etiquette">Vos événements</span>
+            <h2 class="section-titre">Des salles équipées pour vos événements</h2>
+            <p class="section-sous-titre">
+                Conférences, séminaires, réunions ou formations : déposez votre demande
+                en ligne à l'heure près, le planning vous répond en direct.
+            </p>
+            <ul class="atouts">
+                <li><span class="atout-ic"><i class="fas fa-video" aria-hidden="true"></i></span> Vidéoprojecteur, sonorisation, climatisation et wifi</li>
+                <li><span class="atout-ic"><i class="fas fa-clock" aria-hidden="true"></i></span> Réservation à l'heure près, de 07h à 21h</li>
+                <li><span class="atout-ic"><i class="fas fa-shuffle" aria-hidden="true"></i></span> Aucun chevauchement possible : un créneau, une salle, un usage</li>
+                <li><span class="atout-ic"><i class="fas fa-bell" aria-hidden="true"></i></span> Suivi de la demande et confirmation notifiés par e-mail</li>
+            </ul>
+            <div class="salles-chips">
+                <?php foreach ($salles as $s): ?>
+                    <span class="chip"><i class="fas fa-door-open" aria-hidden="true"></i>&nbsp; <?= e($s['nom']) ?> · <?= (int) $s['capacite'] ?> places</span>
+                <?php endforeach; ?>
+            </div>
+            <div class="accueil-hero-cta accueil-cta-start">
+                <a class="btn btn-primaire btn-grand" href="<?= url('/reserver') ?>">Demander une réservation</a>
+            </div>
+            <p class="accueil-note"><i class="fas fa-circle-info" aria-hidden="true"></i> Réponse du gestionnaire sous 24 h ouvrées.</p>
+        </div>
+        <div class="accueil-split-media reveal">
+            <img src="<?= asset('img/salles.jpg') ?>" alt="Salle de réunion équipée avec écran de projection" loading="lazy" decoding="async" width="1400" height="1050">
+            <div class="accueil-split-carte">
+                <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                <div>
+                    <strong>Planning en direct</strong>
+                    <span>libre, en attente, réservé</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Parcours apprenant : 4 étapes
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="section section-teinte" id="etapes">
     <div class="conteneur">
         <div class="section-entete section-centree">
             <div>
@@ -175,43 +239,57 @@
                 <p class="section-sous-titre">Quatre étapes simples pour rejoindre une formation.</p>
             </div>
         </div>
-        <div class="etapes">
-            <div class="etape">
+        <ol class="etapes">
+            <li class="etape reveal">
                 <div class="etape-num">1</div>
                 <h3>Choisissez votre formation</h3>
-                <p>Parcourez le catalogue et sélectionnez la session qui vous convient dans la liste des sessions ouvertes.</p>
-            </div>
-            <div class="etape">
+                <p>Parcourez le catalogue et sélectionnez la session qui vous convient parmi les sessions ouvertes.</p>
+            </li>
+            <li class="etape reveal">
                 <div class="etape-num">2</div>
-                <h3>Vérifiez votre e-mail</h3>
-                <p>Un clic sur le lien reçu dans votre boîte de réception confirme votre adresse.</p>
-            </div>
-            <div class="etape">
+                <h3>Confirmez votre e-mail</h3>
+                <p>Un clic sur le lien reçu dans votre boîte de réception valide votre adresse.</p>
+            </li>
+            <li class="etape reveal">
                 <div class="etape-num">3</div>
                 <h3>Recevez vos identifiants</h3>
                 <p>Votre matricule d'apprenant et votre mot de passe vous sont envoyés par e-mail.</p>
-            </div>
-            <div class="etape">
+            </li>
+            <li class="etape reveal">
                 <div class="etape-num">4</div>
                 <h3>Suivez votre formation</h3>
-                <p>Dates, horaires, salle, formateur : tout est dans votre espace personnel.</p>
-            </div>
-        </div>
+                <p>Dates, horaires, salle et formateur : tout est visible dans votre espace personnel.</p>
+            </li>
+        </ol>
     </div>
 </section>
 
-<!-- ═══════════ Appel à l'action final ═══════════ -->
+<!-- ═══════════════════════════════════════════════════════════════
+     Appel à l'action final
+     ═══════════════════════════════════════════════════════════════ -->
 <section class="cta-final">
     <div class="conteneur cta-final-inner">
         <div>
             <h2>Prêt à vous lancer ?</h2>
             <p>Rejoignez nos apprenants ou réservez l'une de nos salles pour votre prochain événement.</p>
         </div>
-        <div class="hero-cta">
+        <div class="accueil-hero-cta">
             <a class="btn btn-blanc btn-grand" href="<?= url('/inscription') ?>">S'inscrire à une formation</a>
             <a class="btn btn-contour-clair btn-grand" href="<?= url('/reserver') ?>">Réserver une salle</a>
         </div>
     </div>
 </section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "GCF · Centre de formation",
+  "description": "Centre de formation professionnelle dans le numérique : catalogue de formations, inscription en ligne et réservation de salles équipées.",
+  "telephone": "+229 01 46 46 66 56",
+  "address": { "@type": "PostalAddress", "addressLocality": "Cotonou" },
+  "areaServed": "Cotonou"
+}
+</script>
 
 <?php require dirname(__DIR__) . '/layout/bas_publique.php'; ?>
