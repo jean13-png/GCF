@@ -66,6 +66,8 @@ $router->post('/reservations/statut/{id}', [ReservationController::class, 'chang
 
 // ── Planning hebdomadaire ─────────────────────────────────────────
 $router->get('/planning', [PlanningController::class, 'index'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
+$router->get('/planning/jour', [PlanningController::class, 'jour'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
+$router->post('/planning/programmer', [PlanningController::class, 'programmer'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);
 
 // ── Catalogue des formations ──────────────────────────────────────
 $router->get('/formations', [FormationController::class, 'index'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);

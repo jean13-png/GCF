@@ -954,3 +954,148 @@ details.mail .corps { margin-top: 12px; border-top: 1px dashed var(--gris-bordur
 }
 
 .voile.visible { display: block; }
+
+/* ═════════════════════════════════════════════════════════════════
+   Planning : modal de la journée d'une salle (4 statuts, programmation)
+   ═════════════════════════════════════════════════════════════════ */
+.case-jour { cursor: pointer; transition: transform .08s ease, box-shadow .08s ease; }
+.case-jour:hover, .case-jour:focus-visible {
+    outline: 2px solid var(--bleu-moyen);
+    outline-offset: 1px;
+    background: #f6f8ff;
+}
+
+.pj-voile {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(12, 18, 55, 0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px;
+}
+.pj-voile[hidden] { display: none; }
+.pj-modal {
+    background: #fff; border-radius: 16px;
+    width: 100%; max-width: 660px; max-height: 88vh;
+    overflow: auto; box-shadow: 0 24px 70px rgba(10, 15, 50, 0.35);
+}
+.pj-entete {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bleu); color: #fff;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.pj-entete h3 { font-size: 16.5px; font-weight: 700; }
+.pj-fermer {
+    background: rgba(255,255,255,.16); color: #fff; border: none;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 19px; line-height: 1; cursor: pointer; flex-shrink: 0;
+}
+.pj-fermer:hover { background: rgba(255,255,255,.28); }
+.pj-corps { padding: 16px 18px 20px; }
+.pj-chargement, .pj-erreur { text-align: center; padding: 18px 6px; }
+.pj-erreur { color: var(--rouge); font-weight: 600; }
+
+.pj-legende {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    font-size: 12.5px; color: var(--gris-doux);
+    margin-bottom: 12px;
+}
+.pj-legende-item { display: inline-flex; align-items: center; gap: 6px; }
+.pj-puce { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.p-LIBRE { background: var(--vert); }
+.p-EN_ATTENTE { background: var(--orange); }
+.p-CONFIRMEE { background: var(--bleu-moyen); }
+.p-OCCUPEE { background: var(--rouge); }
+
+.pj-alerte {
+    background: var(--rouge-clair); color: #8a1220;
+    border: 1px solid #f0c4cb; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 12px; font-size: 13.5px;
+}
+
+.pj-liste { display: flex; flex-direction: column; gap: 6px; }
+.pj-creneau {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: 10px;
+    border: 1px solid var(--gris-bordure); border-left: 5px solid transparent;
+}
+.pj-horaire {
+    font-weight: 700; font-variant-numeric: tabular-nums;
+    min-width: 96px; font-size: 14px; color: var(--gris-texte);
+}
+.pj-etat { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.pj-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 20px; white-space: nowrap; color: #fff;
+}
+.pj-evenement { font-size: 13px; color: var(--gris-texte); }
+
+.cren-LIBRE { border-left-color: var(--vert); background: #fbfefc; }
+.cren-EN_ATTENTE { border-left-color: var(--orange); background: var(--orange-clair); }
+.cren-CONFIRMEE { border-left-color: var(--bleu-moyen); background: var(--bleu-clair); }
+.cren-OCCUPEE { border-left-color: var(--rouge); background: var(--rouge-clair); }
+.b-LIBRE { background: var(--vert); }
+.b-EN_ATTENTE { background: var(--orange); }
+.b-CONFIRMEE { background: var(--bleu-moyen); }
+.b-OCCUPEE { background: var(--rouge); }
+
+.pj-btn-add { flex-shrink: 0; }
+
+.pj-form-titre { margin: 14px 0 4px; font-size: 15.5px; color: var(--bleu); }
+.pj-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-top: 10px; }
+.pj-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--gris-texte); }
+.pj-form input, .pj-form select {
+    border: 1px solid var(--gris-bordure); border-radius: 9px;
+    padding: 8px 10px; font-size: 14px; font-family: inherit; background: #fff;
+}
+.pj-form input:focus, .pj-form select:focus { outline: 2px solid var(--bleu-moyen); outline-offset: 0; }
+.pj-form .pj-entiere { grid-column: 1 / -1; }
+.pj-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+.pj-message { grid-column: 1 / -1; }
+
+/* ═════════════════════════════════════════════════════════════════
+   Bloc disponibilités (refus de créneau + propositions cliquables)
+   ═════════════════════════════════════════════════════════════════ */
+.dispo-bloc {
+    border: 1.5px solid #bcd9c8;
+    background: #f4fbf7;
+    margin-bottom: 18px;
+}
+.dispo-titre { color: var(--vert); font-size: 16px; margin-bottom: 6px; }
+.dispo-intro { margin: 8px 0 4px; }
+.dispo-creneaux { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.dispo-btn {
+    background: #fff; border: 1.5px solid var(--vert); color: #0b6b3c;
+    padding: 6px 14px; border-radius: 10px; cursor: pointer;
+    font-weight: 600; font-size: 13.5px; font-family: inherit;
+    transition: background .12s ease, transform .12s ease;
+}
+.dispo-btn:hover { background: var(--vert-clair); transform: translateY(-1px); }
+.dispo-btn.dispo-choisi { background: var(--vert); color: #fff; }
+
+/* ═════════════════════════════════════════════════════════════════
+   Responsive renforcé : aucun débordement horizontal sur mobile
+   ═════════════════════════════════════════════════════════════════ */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, video, iframe { max-width: 100%; }
+
+@media (max-width: 900px) {
+    .section-entete { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .stats-grille { grid-template-columns: repeat(2, 1fr); }
+    .prochaines-sessions ul li { flex-direction: column; gap: 10px; }
+    .prochaine-session-droite { align-items: flex-start !important; }
+    .pj-form { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+    .conteneur { padding: 0 14px; }
+    .section { padding: 42px 0; }
+    .stats-grille { gap: 10px; margin-top: -26px; }
+    .stat-valeur { font-size: 26px; }
+    .pj-creneau { flex-wrap: wrap; }
+    .pj-horaire { min-width: 100%; }
+    .pj-btn-add { width: 100%; }
+    .pj-voile { padding: 10px; }
+    .pj-corps { padding: 12px; }
+    .dispo-btn { width: 100%; text-align: center; }
+    .hero-reassurance { font-size: 12.5px; line-height: 1.6; }
+}
