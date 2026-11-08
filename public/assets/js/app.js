@@ -87,12 +87,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // Menu du site public sur téléphone
     var burgerPublic = document.querySelector('.navbar-publique .burger');
     var menuPublic = document.querySelector('.menu-public');
+    var voilePublic = document.getElementById('voilePublic');
+    function fermerMenuPublic() {
+        if (!menuPublic) { return; }
+        menuPublic.classList.remove('ouverte');
+        if (burgerPublic) {
+            burgerPublic.classList.remove('ouvert');
+            burgerPublic.setAttribute('aria-expanded', 'false');
+            var icone = burgerPublic.querySelector('i');
+            if (icone) { icone.className = 'fas fa-bars'; }
+        }
+        if (voilePublic) { voilePublic.classList.remove('visible'); }
+    }
     if (burgerPublic && menuPublic) {
         burgerPublic.addEventListener('click', function () {
-            menuPublic.classList.toggle('ouverte');
+            var ouvert = menuPublic.classList.toggle('ouverte');
+            burgerPublic.classList.toggle('ouvert', ouvert);
+            burgerPublic.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+            var icone = burgerPublic.querySelector('i');
+            if (icone) { icone.className = ouvert ? 'fas fa-xmark' : 'fas fa-bars'; }
+            if (voilePublic) { voilePublic.classList.toggle('visible', ouvert); }
         });
         document.querySelectorAll('.menu-public a').forEach(function (a) {
-            a.addEventListener('click', function () { menuPublic.classList.remove('ouverte'); });
+            a.addEventListener('click', fermerMenuPublic);
+        });
+        if (voilePublic) { voilePublic.addEventListener('click', fermerMenuPublic); }
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { fermerMenuPublic(); }
         });
     }
 

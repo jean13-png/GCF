@@ -223,7 +223,7 @@ a:hover { text-decoration: underline; }
     border-bottom: 2px solid transparent;
 }
 .menu-public > a:hover, .menu-public > a.actif { color: #fff; border-bottom-color: var(--rouge); }
-.menu-public-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.menu-public-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto; }
 .menu-public-actions .btn-discret { background: rgba(255,255,255,.12); color: #fff; }
 .menu-public-actions .btn-discret:hover { background: rgba(255,255,255,.2); }
 
@@ -909,15 +909,21 @@ details.mail .corps { margin-top: 12px; border-top: 1px dashed var(--gris-bordur
         z-index: 70;
     }
     .menu-public.ouverte { transform: none; }
-    .menu-public > a { font-size: 16px; width: 100%; padding: 10px 4px; border-bottom: none; }
-    .menu-public-actions { flex-direction: column; align-items: stretch; width: 100%; margin: 14px 0 0; }
-    .menu-public-actions .btn { text-align: center; }
+    .menu-public > a { font-size: 16px; width: 100%; padding: 11px 4px; border-bottom: none; }
+    .menu-public-actions { flex-direction: column; align-items: stretch; width: 100%; margin: 16px 0 0; gap: 10px; }
+    .menu-public-actions .btn { text-align: center; width: 100%; padding: 11px 16px; }
     .navbar-publique .burger {
         display: grid; place-items: center;
         background: rgba(255,255,255,.12);
         border: 1px solid rgba(255,255,255,.25);
         color: #fff;
+        width: 44px; height: 44px;
+        font-size: 19px;
+        flex-shrink: 0;
+        transition: background .15s ease;
     }
+    .navbar-publique .burger:hover { background: rgba(255,255,255,.22); }
+    .navbar-inner { min-height: 62px; gap: 12px; }
     .hero { min-height: 480px; }
     .stats-grille { grid-template-columns: repeat(2, 1fr); margin-top: -30px; }
     .section { padding: 52px 0; }
