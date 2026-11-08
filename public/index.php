@@ -23,6 +23,7 @@ require dirname(__DIR__) . '/app/Core/Helpers.php';
 
 use App\Controllers\ApprenantController;
 use App\Controllers\AuthController;
+use App\Controllers\ContactController;
 use App\Controllers\DashboardController;
 use App\Controllers\FormationController;
 use App\Controllers\HomeController;
@@ -37,8 +38,10 @@ $router = new App\Core\Router();
 
 // ── Accueil et pages publiques ─────────────────────────────────────
 $router->get('/', [HomeController::class, 'accueil']);
-$router->get('/salles', [HomeController::class, 'salles']);
+$router->get('/nos-salles', [HomeController::class, 'salles']);
 $router->get('/comment-ca-marche', [HomeController::class, 'commentCaMarche']);
+$router->get('/contact', [ContactController::class, 'publique']);
+$router->post('/contact', [ContactController::class, 'soumettre']);
 $router->get('/inscription', [InscriptionController::class, 'publique']);
 $router->post('/inscription', [InscriptionController::class, 'soumettre']);
 $router->get('/inscription/verifier', [InscriptionController::class, 'verifier']);
@@ -69,6 +72,10 @@ $router->post('/reservations/statut/{id}', [ReservationController::class, 'chang
 // ── Planning hebdomadaire ─────────────────────────────────────────
 $router->get('/planning', [PlanningController::class, 'index'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
 $router->get('/planning/jour', [PlanningController::class, 'jour'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
+
+// ── Messages de contact (page Contact du site public) ──────────────
+$router->get('/messages', [ContactController::class, 'liste'], ['ADMIN', 'GESTIONNAIRE']);
+$router->post('/messages/{id}/traiter', [ContactController::class, 'traiter'], ['ADMIN', 'GESTIONNAIRE']);
 $router->post('/planning/programmer', [PlanningController::class, 'programmer'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);
 
 // ── Catalogue des formations ──────────────────────────────────────

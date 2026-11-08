@@ -33,9 +33,9 @@ $routeActive = static function (string $route) use ($cheminCourant): string {
                 <div class="menu-public-liens">
                     <a href="<?= url('/') ?>"<?= $routeActive('/') ?>>Accueil</a>
                     <a href="<?= url('/#formations') ?>">Nos formations</a>
-                    <a href="<?= url('/salles') ?>">Nos salles</a>
+                    <a href="<?= url('/nos-salles') ?>"<?= $routeActive('/nos-salles') ?>>Nos salles</a>
                     <a href="<?= url('/comment-ca-marche') ?>">Comment ça marche</a>
-                    <a href="<?= url('/#contact') ?>">Contact</a>
+                    <a href="<?= url('/contact') ?>"<?= $routeActive('/contact') ?>>Contact</a>
                 </div>
                 <div class="menu-public-actions">
                     <a class="btn btn-discret" href="<?= url('/login') ?>">Espace personnel</a>

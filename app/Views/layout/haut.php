@@ -46,6 +46,15 @@ $actif = static function (string $route) use ($cheminCourant): string {
             <?php else: ?>
                 <div class="groupe">Pilotage</div>
                 <a href="<?= url('/dashboard') ?>"<?= $actif('/dashboard') ?>><span class="ic">▤</span> Tableau de bord</a>
+                <?php if ($role === 'ADMIN' || $role === 'GESTIONNAIRE'): ?>
+                    <?php $nbMessagesContact = \App\Models\MessageContact::compterNouveaux(); ?>
+                    <a href="<?= url('/messages') ?>"<?= $actif('/messages') ?>>
+                        <span class="ic"><i class="fas fa-envelope"></i></span> Messages
+                        <?php if ($nbMessagesContact > 0): ?>
+                            <span class="badge-compteur"><?= (int) $nbMessagesContact ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
                 <?php if ($estAdmin): ?>
                     <a href="<?= url('/emails') ?>"<?= $actif('/emails') ?>><span class="ic">✉</span> Journal des e-mails</a>
                 <?php endif; ?>

@@ -144,6 +144,18 @@ CREATE TABLE activity_logs (
     CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
+-- Messages reçus depuis la page Contact du site public
+CREATE TABLE messages_contact (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    nom       VARCHAR(120) NOT NULL,
+    email     VARCHAR(190) NOT NULL,
+    telephone VARCHAR(30)  DEFAULT NULL,
+    sujet     VARCHAR(190) NOT NULL,
+    message   TEXT NOT NULL,
+    statut    ENUM('NOUVEAU','TRAITE') NOT NULL DEFAULT 'NOUVEAU',
+    cree_le   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 -- ══════════════════════════════════════════════════════════════════
 --  DONNÉES DE DÉMONSTRATION
 --  Comptes :

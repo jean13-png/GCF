@@ -213,7 +213,7 @@
             </div>
             <div class="accueil-hero-cta accueil-cta-start">
                 <a class="btn btn-primaire btn-grand" href="<?= url('/reserver') ?>">Demander une réservation</a>
-                <a class="btn btn-contour-bleu btn-grand" href="<?= url('/salles') ?>">Découvrir nos salles</a>
+                <a class="btn btn-contour-bleu btn-grand" href="<?= url('/nos-salles') ?>">Découvrir nos salles</a>
             </div>
             <p class="accueil-note"><i class="fas fa-circle-info" aria-hidden="true"></i> Réponse du gestionnaire sous 24 h ouvrées.</p>
         </div>

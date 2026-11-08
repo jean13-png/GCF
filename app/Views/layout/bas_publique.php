@@ -17,7 +17,8 @@
                 <h4>La plateforme</h4>
                 <ul>
                     <li><a href="<?= url('/inscription') ?>">S'inscrire à une formation</a></li>
-                    <li><a href="<?= url('/salles') ?>">Nos salles</a></li>
+                    <li><a href="<?= url('/nos-salles') ?>">Nos salles</a></li>
+                    <li><a href="<?= url('/contact') ?>">Nous écrire</a></li>
                     <li><a href="<?= url('/reserver') ?>">Demander une salle</a></li>
                     <li><a href="<?= url('/login') ?>">Espace personnel</a></li>
                     <li><a href="<?= url('/comment-ca-marche') ?>">Comment ça marche</a></li>
