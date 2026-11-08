@@ -84,9 +84,9 @@
 
             // Une photo réelle par formation, selon son intitulé
             $imageParFormation = [
-                'Initiation à l\'informatique'                              => 'formation-bureautique.jpg',
+                'Initiation à l\'informatique'                              => 'formation-initiation.jpg',
                 'Bureautique professionnelle : Word, Excel, PowerPoint'     => 'formation-bureautique.jpg',
-                'Internet et outils numériques'                             => 'formation-bureautique.jpg',
+                'Internet et outils numériques'                             => 'formation-internet.jpg',
                 'Développement web : HTML, CSS et JavaScript'               => 'formation-web.jpg',
                 'Créer son site avec WordPress'                             => 'formation-wordpress.jpg',
                 'Cybersécurité : se protéger au quotidien'                  => 'formation-securite.jpg',
@@ -94,7 +94,9 @@
                 'Maintenance et dépannage des ordinateurs'                  => 'formation-maintenance.jpg',
             ];
             $altParImage = [
+                'formation-initiation.jpg'   => 'Débutants en apprentissage de l\'informatique en salle de formation',
                 'formation-bureautique.jpg'  => 'Apprenante en formation bureautique devant son ordinateur portable',
+                'formation-internet.jpg'     => 'Apprenante utilisant un ordinateur portable et un smartphone pour se connecter',
                 'formation-web.jpg'          => 'Développeur web au travail sur du code dans un bureau moderne',
                 'formation-wordpress.jpg'    => 'Création de site web sur écran d\'ordinateur',
                 'formation-securite.jpg'     => 'Cadenas de la sécurité informatique sur une porte bleue',
@@ -156,7 +158,7 @@
 <section class="section section-teinte" id="approche">
     <div class="conteneur accueil-split">
         <div class="accueil-split-media reveal">
-            <img src="<?= asset('img/formateur.jpg') ?>" alt="Formateur accompagnant des apprenants en salle de formation" loading="lazy" decoding="async" width="1100" height="1375">
+            <img src="<?= asset('img/approche.jpg') ?>" alt="Formatrice accompagnant une apprenante sur ordinateur portable en salle de formation" loading="lazy" decoding="async" width="1100" height="1375">
             <div class="accueil-split-carte">
                 <i class="fas fa-award" aria-hidden="true"></i>
                 <div>
@@ -211,6 +213,7 @@
             </div>
             <div class="accueil-hero-cta accueil-cta-start">
                 <a class="btn btn-primaire btn-grand" href="<?= url('/reserver') ?>">Demander une réservation</a>
+                <a class="btn btn-contour-bleu btn-grand" href="<?= url('/salles') ?>">Découvrir nos salles</a>
             </div>
             <p class="accueil-note"><i class="fas fa-circle-info" aria-hidden="true"></i> Réponse du gestionnaire sous 24 h ouvrées.</p>
         </div>
@@ -236,7 +239,7 @@
             <div>
                 <span class="section-etiquette">Parcours apprenant</span>
                 <h2 class="section-titre">Comment ça marche ?</h2>
-                <p class="section-sous-titre">Quatre étapes simples pour rejoindre une formation.</p>
+                <p class="section-sous-titre">Quatre étapes simples pour rejoindre une formation. <a href="<?= url('/comment-ca-marche') ?>">Voir le détail des deux parcours</a>.</p>
             </div>
         </div>
         <ol class="etapes">

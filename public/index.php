@@ -37,6 +37,8 @@ $router = new App\Core\Router();
 
 // ── Accueil et pages publiques ─────────────────────────────────────
 $router->get('/', [HomeController::class, 'accueil']);
+$router->get('/salles', [HomeController::class, 'salles']);
+$router->get('/comment-ca-marche', [HomeController::class, 'commentCaMarche']);
 $router->get('/inscription', [InscriptionController::class, 'publique']);
 $router->post('/inscription', [InscriptionController::class, 'soumettre']);
 $router->get('/inscription/verifier', [InscriptionController::class, 'verifier']);

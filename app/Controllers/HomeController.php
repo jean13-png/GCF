@@ -26,4 +26,26 @@ final class HomeController
             ],
         ]);
     }
+
+    /**
+     * Page publique « Nos salles » : présentation des salles actives,
+     * leurs équipements et leur tarif horaire, avec accès à la demande.
+     */
+    public function salles(): void
+    {
+        view('salles/publique', [
+            'salles' => Salle::actives(),
+        ]);
+    }
+
+    /**
+     * Page publique « Comment ça marche » : les deux parcours,
+     * inscription à une formation et demande de réservation de salle.
+     */
+    public function commentCaMarche(): void
+    {
+        view('home/comment-ca-marche', [
+            'nbSalles' => Salle::compterActives(),
+        ]);
+    }
 }

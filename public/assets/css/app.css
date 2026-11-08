@@ -215,15 +215,16 @@ a:hover { text-decoration: underline; }
 }
 .marque-texte { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; }
 
-.menu-public { display: flex; align-items: center; gap: 26px; flex: 1; justify-content: space-between; }
-.menu-public > a {
+.menu-public { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+.menu-public-liens { display: flex; align-items: center; gap: 26px; }
+.menu-public-liens a {
     color: #dfe4fa; font-size: 14.5px; font-weight: 500;
     text-decoration: none !important;
     padding: 6px 2px;
     border-bottom: 2px solid transparent;
 }
-.menu-public > a:hover, .menu-public > a.actif { color: #fff; border-bottom-color: var(--rouge); }
-.menu-public-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto; }
+.menu-public-liens a:hover, .menu-public-liens a.actif { color: #fff; border-bottom-color: var(--rouge); }
+.menu-public-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 .menu-public-actions .btn-discret { background: rgba(255,255,255,.12); color: #fff; }
 .menu-public-actions .btn-discret:hover { background: rgba(255,255,255,.2); }
 
@@ -924,8 +925,9 @@ details.mail .corps { margin-top: 12px; border-top: 1px dashed var(--gris-bordur
         z-index: 70;
     }
     .menu-public.ouverte { transform: none; }
-    .menu-public > a { font-size: 16px; width: 100%; padding: 11px 4px; border-bottom: none; }
-    .menu-public-actions { flex-direction: column; align-items: stretch; width: 100%; margin: 16px 0 0; gap: 10px; }
+    .menu-public-liens { flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
+    .menu-public-liens a { font-size: 16px; width: 100%; padding: 11px 4px; border-bottom: none; }
+    .menu-public-actions { position: static; transform: none; flex-direction: column; align-items: stretch; width: 100%; margin: 16px 0 0; gap: 10px; }
     .menu-public-actions .btn { text-align: center; width: 100%; padding: 11px 16px; }
     .navbar-publique .burger {
         display: grid;
@@ -1012,4 +1014,208 @@ a:focus-visible, button:focus-visible {
     html { scroll-behavior: auto; }
     .reveal { opacity: 1; transform: none; transition: none; }
     .carte-formation-visuel img, .carte-formation, .carte-formation-lien i { transition: none; }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   Planning : modal de la journée d'une salle (4 statuts, programmation)
+   ═════════════════════════════════════════════════════════════════ */
+.case-jour { cursor: pointer; transition: transform .08s ease, box-shadow .08s ease; }
+.case-jour:hover, .case-jour:focus-visible {
+    outline: 2px solid var(--bleu-moyen);
+    outline-offset: 1px;
+    background: #f6f8ff;
+}
+
+.pj-voile {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(12, 18, 55, 0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px;
+}
+.pj-voile[hidden] { display: none; }
+.pj-modal {
+    background: #fff; border-radius: 16px;
+    width: 100%; max-width: 660px; max-height: 88vh;
+    overflow: auto; box-shadow: 0 24px 70px rgba(10, 15, 50, 0.35);
+}
+.pj-entete {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bleu); color: #fff;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.pj-entete h3 { font-size: 16.5px; font-weight: 700; }
+.pj-fermer {
+    background: rgba(255,255,255,.16); color: #fff; border: none;
+    width: 34px; height: 34px; border-radius: 10px;
+    font-size: 19px; line-height: 1; cursor: pointer; flex-shrink: 0;
+}
+.pj-fermer:hover { background: rgba(255,255,255,.28); }
+.pj-corps { padding: 16px 18px 20px; }
+.pj-chargement, .pj-erreur { text-align: center; padding: 18px 6px; }
+.pj-erreur { color: var(--rouge); font-weight: 600; }
+
+.pj-legende {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    font-size: 12.5px; color: var(--gris-doux);
+    margin-bottom: 12px;
+}
+.pj-legende-item { display: inline-flex; align-items: center; gap: 6px; }
+.pj-puce { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.p-LIBRE { background: var(--vert); }
+.p-EN_ATTENTE { background: var(--orange); }
+.p-CONFIRMEE { background: var(--bleu-moyen); }
+.p-OCCUPEE { background: var(--rouge); }
+
+.pj-alerte {
+    background: var(--rouge-clair); color: #8a1220;
+    border: 1px solid #f0c4cb; border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 12px; font-size: 13.5px;
+}
+
+.pj-liste { display: flex; flex-direction: column; gap: 6px; }
+.pj-creneau {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: 10px;
+    border: 1px solid var(--gris-bordure); border-left: 5px solid transparent;
+}
+.pj-horaire {
+    font-weight: 700; font-variant-numeric: tabular-nums;
+    min-width: 96px; font-size: 14px; color: var(--gris-texte);
+}
+.pj-etat { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.pj-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 20px; white-space: nowrap; color: #fff;
+}
+.pj-evenement { font-size: 13px; color: var(--gris-texte); }
+
+.cren-LIBRE { border-left-color: var(--vert); background: #fbfefc; }
+.cren-EN_ATTENTE { border-left-color: var(--orange); background: var(--orange-clair); }
+.cren-CONFIRMEE { border-left-color: var(--bleu-moyen); background: var(--bleu-clair); }
+.cren-OCCUPEE { border-left-color: var(--rouge); background: var(--rouge-clair); }
+.b-LIBRE { background: var(--vert); }
+.b-EN_ATTENTE { background: var(--orange); }
+.b-CONFIRMEE { background: var(--bleu-moyen); }
+.b-OCCUPEE { background: var(--rouge); }
+
+.pj-btn-add { flex-shrink: 0; }
+
+.pj-form-titre { margin: 14px 0 4px; font-size: 15.5px; color: var(--bleu); }
+.pj-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-top: 10px; }
+.pj-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--gris-texte); }
+.pj-form input, .pj-form select {
+    border: 1px solid var(--gris-bordure); border-radius: 9px;
+    padding: 8px 10px; font-size: 14px; font-family: inherit; background: #fff;
+}
+.pj-form input:focus, .pj-form select:focus { outline: 2px solid var(--bleu-moyen); outline-offset: 0; }
+.pj-form .pj-entiere { grid-column: 1 / -1; }
+.pj-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+.pj-message { grid-column: 1 / -1; }
+
+/* ═════════════════════════════════════════════════════════════════
+   Bloc disponibilités (refus de créneau + propositions cliquables)
+   ═════════════════════════════════════════════════════════════════ */
+.dispo-bloc {
+    border: 1.5px solid #bcd9c8;
+    background: #f4fbf7;
+    margin-bottom: 18px;
+}
+.dispo-titre { color: var(--vert); font-size: 16px; margin-bottom: 6px; }
+.dispo-intro { margin: 8px 0 4px; }
+.dispo-creneaux { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.dispo-btn {
+    background: #fff; border: 1.5px solid var(--vert); color: #0b6b3c;
+    padding: 6px 14px; border-radius: 10px; cursor: pointer;
+    font-weight: 600; font-size: 13.5px; font-family: inherit;
+    transition: background .12s ease, transform .12s ease;
+}
+.dispo-btn:hover { background: var(--vert-clair); transform: translateY(-1px); }
+.dispo-btn.dispo-choisi { background: var(--vert); color: #fff; }
+
+/* ═════════════════════════════════════════════════════════════════
+   Responsive renforcé : aucun débordement horizontal sur mobile
+   ═════════════════════════════════════════════════════════════════ */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, video, iframe { max-width: 100%; }
+
+
+@media (max-width: 560px) {
+    .pj-creneau { flex-wrap: wrap; }
+    .pj-horaire { min-width: 100%; }
+    .pj-btn-add { width: 100%; }
+    .pj-voile { padding: 10px; }
+    .pj-corps { padding: 12px; }
+    .dispo-btn { width: 100%; text-align: center; }
+}
+
+/* ══ Page Nos salles : cartes detaillees ═════════════════════════════ */
+.page-publique-large { max-width: 1400px; }
+.cartes-salles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; }
+.carte-salle {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--ombre);
+    display: flex;
+    flex-direction: column;
+    transition: transform .22s ease, box-shadow .22s ease;
+}
+.carte-salle:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(20,30,80,.16); }
+.carte-salle-visuel { height: 250px; overflow: hidden; }
+.carte-salle-visuel img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+.carte-salle:hover .carte-salle-visuel img { transform: scale(1.05); }
+.carte-salle-corps { padding: 22px 24px 24px; display: flex; flex-direction: column; flex: 1; }
+.carte-salle-entete { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.carte-salle-entete h2 { font-size: 19px; color: var(--bleu); font-weight: 800; line-height: 1.25; }
+.carte-salle-capacite {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--bleu-clair); color: var(--bleu);
+    font-size: 13px; font-weight: 700;
+    padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap;
+}
+.carte-salle-equipements { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.carte-salle-details { list-style: none; margin: 10px 0 4px; display: grid; gap: 8px; }
+.carte-salle-details li { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--gris-texte); }
+.carte-salle-details i { color: var(--bleu-moyen); width: 16px; text-align: center; }
+.carte-salle-cta { margin-top: auto; padding-top: 16px; align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; }
+
+.btn-contour-bleu { background: transparent; color: var(--bleu); border: 2px solid var(--bleu-moyen); }
+.btn-contour-bleu:hover { background: var(--bleu-clair); }
+
+/* ══ Page Comment ca marche : deux parcours ══════════════════════════ */
+.guide-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.guide-parcours {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: var(--ombre);
+    padding: 28px 28px 30px;
+}
+.guide-parcours-entete { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+.guide-parcours-ic {
+    width: 54px; height: 54px;
+    border-radius: 16px;
+    display: grid; place-items: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.guide-parcours-formation .guide-parcours-ic { background: var(--bleu-clair); color: var(--bleu); }
+.guide-parcours-salle .guide-parcours-ic { background: var(--rouge-clair); color: var(--rouge); }
+.guide-parcours-etiquette {
+    display: block;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.4px;
+    color: var(--gris-doux);
+    margin-bottom: 3px;
+}
+.guide-parcours-entete h2 { font-size: 21px; color: var(--bleu); font-weight: 800; line-height: 1.2; }
+.etapes-verticales { grid-template-columns: 1fr; gap: 14px; margin-bottom: 24px; }
+.etapes-verticales .etape { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; }
+.etapes-verticales .etape-num { margin-bottom: 0; flex-shrink: 0; }
+.etapes-verticales .etape h3 { margin-bottom: 4px; }
+
+@media (max-width: 980px) {
+    .cartes-salles { grid-template-columns: 1fr; }
+    .guide-grille { grid-template-columns: 1fr; }
 }
