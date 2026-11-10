@@ -159,13 +159,13 @@ CREATE TABLE messages_contact (
 -- ══════════════════════════════════════════════════════════════════
 --  DONNÉES DE DÉMONSTRATION
 --  Comptes :
---    tossajean13@gmail.com / TOSjea13#            (administrateur)
+--    ong.gas2019@gmail.com / 2019OngGas2019            (administrateur)
 --    tossajean13salles@gmail.com / Gestion@2026         (gestionnaire des salles)
 --    tossajean13formations@gmail.com / Responsable@2026 (responsable formations)
 --    apprenant1@gmail.com / Apprenant@2026 (apprenant, matricule GCF-2026-0001)
 -- ══════════════════════════════════════════════════════════════════
 INSERT INTO users (matricule, nom, prenom, email, telephone, role, password_hash) VALUES
-(NULL, 'TOSSA', 'Jean', 'tossajean13@gmail.com', '+229 01 46 46 66 56', 'ADMIN', '$2y$12$y/GibJHhJBLdwmLVbc.W0e3JIcDKb6/DtV2xzTQj541aJr8zciWL6'),
+(NULL, 'TOSSA', 'Jean', 'ong.gas2019@gmail.com', '+229 01 46 46 66 56', 'ADMIN', '$2y$12$9uX0hYL2Dh.90N3hnC9NbOLirTQ1Z5eGXTFCMVRI2Q5ft5swNnYL2'),
 (NULL, 'ADJOVI', 'Marie', 'tossajean13salles@gmail.com', '+229 01 97 00 00 01', 'GESTIONNAIRE', '$2y$12$JKvn6V4EmIX8MRPdp6LM9OxtudqwvnUKl/l8zVHw5J10Qf5k1vH0C'),
 (NULL, 'GBAGUIDI', 'Paul', 'tossajean13formations@gmail.com', '+229 01 97 00 00 02', 'RESPONSABLE', '$2y$12$tFkmNA/Ht/g6aM7qllogBO5qk4d7iE1DJyAk/vY5Y9hgDKEjqU3CC'),
 (NULL, 'FORMATEUR', 'Exemple', 'formateur@gmail.com', '+229 01 97 00 00 03', 'FORMATEUR', '$2y$12$tFkmNA/Ht/g6aM7qllogBO5qk4d7iE1DJyAk/vY5Y9hgDKEjqU3CC'),

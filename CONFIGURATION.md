@@ -33,8 +33,8 @@
 ### 5. Comptes de démonstration
 
 #### Administrateur
-- **Email** : tossajean13@gmail.com
-- **Mot de passe** : TOSjea13#
+- **Email** : ong.gas2019@gmail.com
+- **Mot de passe** : 2019OngGas2019
 - **Rôle** : ADMIN
 
 #### Gestionnaire des salles
