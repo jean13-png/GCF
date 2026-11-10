@@ -1,4 +1,4 @@
-<?php $titrePage = 'Réserver une salle'; ?>
+<?php $titrePage = 'Réserver une salle'; $descPage = "Réserver une salle équipée : consultez les disponibilités en temps réel et envoyez votre demande en ligne, avec confirmation par e-mail."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <div class="conteneur page-publique">

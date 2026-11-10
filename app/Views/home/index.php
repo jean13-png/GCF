@@ -1,4 +1,4 @@
-<?php $titrePage = 'Accueil'; ?>
+<?php $descPage = "Centre de formation numérique de l'ONG-GAS à Cotonou (Akpakpa) : formations en informatique pour tous les niveaux, inscription en ligne et réservation de salles équipées."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -287,10 +287,13 @@
 {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
-  "name": "GCF · Centre de formation",
+  "name": "Centre de formation",
+  "alternateName": ["GCF", "Centre de formation ONG-GAS"],
   "description": "Centre de formation professionnelle dans le numérique : catalogue de formations, inscription en ligne et réservation de salles équipées.",
+  "url": "https://planninggaspipt.com",
+  "image": "https://planninggaspipt.com/public/assets/img/og-gcf.png",
   "telephone": "+229 01 46 46 66 56",
-  "address": { "@type": "PostalAddress", "addressLocality": "Cotonou" },
+  "address": { "@type": "PostalAddress", "streetAddress": "Quartier Akpakpa", "addressLocality": "Cotonou", "addressCountry": "BJ" },
   "areaServed": "Cotonou"
 }
 </script>

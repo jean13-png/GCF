@@ -1,4 +1,4 @@
-<?php $titrePage = 'Contact'; ?>
+<?php $titrePage = 'Contact'; $descPage = "Contacter le centre de formation : adresse à Cotonou (quartier Akpakpa), téléphone et formulaire en ligne pour toute question."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <div class="conteneur page-publique contact-grille">

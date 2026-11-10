@@ -1,4 +1,4 @@
-<?php $titrePage = 'Nos salles'; ?>
+<?php $titrePage = 'Nos salles'; $descPage = "Les salles du centre de formation à Cotonou : capacités, équipements, tarifs horaires et disponibilités en temps réel pour préparer votre réservation."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <div class="conteneur page-publique page-publique-large">

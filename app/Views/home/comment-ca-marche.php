@@ -1,4 +1,4 @@
-<?php $titrePage = 'Comment ça marche'; ?>
+<?php $titrePage = 'Comment ça marche'; $descPage = "Comment ça marche : s'inscrire à une formation ou demander une salle du centre, étape par étape, avec une notification par e-mail à chaque étape."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <div class="conteneur page-publique page-publique-large">

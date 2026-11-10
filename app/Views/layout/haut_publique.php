@@ -7,14 +7,28 @@ $cheminCourant = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 $routeActive = static function (string $route) use ($cheminCourant): string {
     return rtrim($cheminCourant, '/') === rtrim(base_path() . $route, '/') ? ' class="actif"' : '';
 };
+
+// Référencement : titre, description et URL canonique de la page publique.
+$descSeo = $descPage ?? 'Centre de formation dans le numérique : catalogue de formations, inscription en ligne et réservation de salles équipées à Cotonou.';
+$titreSeo = isset($titrePage) ? $titrePage . ' · Centre de formation' : 'Centre de formation numérique à Cotonou : formations et réservation de salles';
+$urlSeo = 'https://planninggaspipt.com' . $cheminCourant;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Centre de formation dans le numérique : catalogue de formations, inscription en ligne et réservation de salles équipées.">
-<title><?= e($titrePage ?? 'Accueil') ?> · Centre de formation</title>
+<meta name="description" content="<?= e($descSeo) ?>">
+<title><?= e($titreSeo) ?></title>
+<link rel="canonical" href="<?= e($urlSeo) ?>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Centre de formation">
+<meta property="og:title" content="<?= e($titreSeo) ?>">
+<meta property="og:description" content="<?= e($descSeo) ?>">
+<meta property="og:url" content="<?= e($urlSeo) ?>">
+<meta property="og:image" content="https://planninggaspipt.com/public/assets/img/og-gcf.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
 </head>

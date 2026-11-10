@@ -1,4 +1,4 @@
-<?php $titrePage = 'Inscription en ligne'; ?>
+<?php $titrePage = 'Inscription en ligne'; $descPage = "Inscription en ligne aux formations du centre : choisissez votre session, vérifiez votre adresse e-mail et recevez vos identifiants."; ?>
 <?php require dirname(__DIR__) . '/layout/haut_publique.php'; ?>
 
 <div class="conteneur page-publique">
