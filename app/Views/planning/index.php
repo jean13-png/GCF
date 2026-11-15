@@ -175,7 +175,8 @@ $planningData = [
         }));
         ?>
         <section class="g1-bande <?= $estAujourdhui ? 'aujourdhui' : '' ?>">
-            <div class="g1-bandeau <?= $index >= 5 ? 'weekend' : '' ?>">
+            <div class="g1-bandeau <?= $index >= 5 ? 'weekend' : '' ?>" role="button" tabindex="0"
+                 title="Voir les heures de la journée">
                 <span class="g1-bandeau-date"><?= e(ucfirst(jour_fr((int) $j->format('w')))) ?> <?= (int) $j->format('d') ?> <?= e(mois_fr((int) $j->format('n'))) ?> <?= $j->format('Y') ?></span>
                 <?php if ($estAujourdhui): ?><span class="g1-badge-jour">Aujourd'hui</span><?php endif; ?>
             </div>

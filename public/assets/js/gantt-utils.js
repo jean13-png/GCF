@@ -34,14 +34,15 @@ window.Gantt = (function () {
 
     /* ── Code couleur des statuts ( validé par la direction ) ─────────
        Libre = vert, En attente = orange, Réservé = bleu,
-       Occupé = rouge, À reporter = jaune.                            */
+       Occupé = rouge, À reporter = jaune. Teintes soutenues :
+       la couleur doit informer d'un seul coup d'œil.               */
     var COULEURS_STATUT = {
-        EN_ATTENTE: { fond: 'rgba(196, 123, 14, .32)',  bord: '#c47b0e', texte: '#6b4a05' },
-        CONFIRMEE:  { fond: 'rgba(63, 116, 168, .34)',  bord: '#3f74a8', texte: '#17324e' },
-        OCCUPEE:    { fond: 'rgba(179, 18, 26, .32)',   bord: '#b3121a', texte: '#6d0a10' },
-        A_REPORTER: { fond: 'rgba(201, 154, 19, .42)',  bord: '#c99a13', texte: '#584402' }
+        EN_ATTENTE: { fond: 'rgba(196, 123, 14, .78)',  bord: '#8f5905', texte: '#fff' },
+        CONFIRMEE:  { fond: 'rgba(63, 116, 168, .82)',  bord: '#2a527e', texte: '#fff' },
+        OCCUPEE:    { fond: 'rgba(179, 18, 26, .82)',   bord: '#7c0b12', texte: '#fff' },
+        A_REPORTER: { fond: 'rgba(227, 183, 30, .75)',  bord: '#a3830d', texte: '#3f3202' }
     };
-    var COULEUR_LIBRE = { fond: '#e9f7ee', bord: '#3fae64', texte: '#1d6b3c' };
+    var COULEUR_LIBRE = { fond: '#ddf2e4', bord: '#2f9e5f', texte: '#14572e' };
 
     function couleurStatut(statut) {
         return COULEURS_STATUT[statut] || COULEURS_STATUT.EN_ATTENTE;

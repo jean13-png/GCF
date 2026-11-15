@@ -167,6 +167,22 @@
 
     /* ═══════════ Vue 1 : clics, survol, sélection glissée ═══════════ */
 
+    /* clic sur le bandeau de date : colonne des heures colorée du jour */
+    Array.prototype.forEach.call(document.querySelectorAll('.g1-bandeau'), function (bandeau) {
+        var section = bandeau.closest('.g1-bande');
+        var grille = section ? section.querySelector('.g1-grille') : null;
+        if (!grille) { return; }
+        bandeau.style.cursor = 'pointer';
+        bandeau.title = 'Voir les heures de la journée';
+        var ouvrir = function () {
+            ouvrirJournee(grille.getAttribute('data-salle-id'), grille.getAttribute('data-salle-nom'), grille.getAttribute('data-date'));
+        };
+        bandeau.addEventListener('click', ouvrir);
+        bandeau.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(); }
+        });
+    });
+
     Array.prototype.forEach.call(document.querySelectorAll('.g1-grille'), function (grille) {
         /* clic sur un bloc : fiche détail */
         Array.prototype.forEach.call(grille.querySelectorAll('.g1-bloc'), function (bloc) {
@@ -332,48 +348,97 @@
                 'elle n\'accepte pas de nouvelle programmation.</div>';
         }
 
-        if (d.occurrences && d.occurrences.length > 0) {
-            html += '<h4 class="pj-section"><i class="fas fa-calendar-day"></i> Déroulé de la journée</h4>';
-            html += '<div class="pj-evenements">';
-            d.occurrences.forEach(function (o) {
-                var cl = o.statut === 'OCCUPEE' ? 'st-occupe' : o.statut === 'CONFIRMEE' ? 'st-reserve' : o.statut === 'A_REPORTER' ? 'st-reporter' : 'st-attente';
-                html += '<div class="pj-evt ' + cl + '"><div class="pj-evt-barre"></div><div class="pj-evt-corps">';
-                html += '<div class="pj-evutile"><span class="pj-evt-horaires">' +
-                    heureCourte(o.heure_debut) + ' – ' + heureCourte(o.heure_fin) + '</span>' +
-                    '<span class="pj-evt-duree">' + G.dureeTexte(o.heure_debut, o.heure_fin) + '</span>' +
-                    '<span class="pj-badge b-' + o.statut + '">' + ((D.libellesStatut || {})[o.statut] || o.statut) + '</span></div>';
-                html += '<div class="pj-evt-titre">' + echapper(o.evenement) + '</div>';
-                html += '<div class="pj-evt-meta">';
-                if (o.demandeur_nom) { html += '<span><i class="fas fa-user"></i>' + echapper(o.demandeur_nom) + '</span>'; }
-                if (o.demandeur_organisation) { html += '<span><i class="fas fa-building"></i>' + echapper(o.demandeur_organisation) + '</span>'; }
-                if (o.nb_personnes) { html += '<span><i class="fas fa-users"></i>' + echapper(o.nb_personnes) + ' pers.</span>'; }
-                if (o.demandeur_email) { html += '<span><i class="fas fa-envelope"></i>' + echapper(o.demandeur_email) + '</span>'; }
-                if (o.demandeur_telephone) { html += '<span><i class="fas fa-phone"></i>' + echapper(o.demandeur_telephone) + '</span>'; }
-                html += '</div></div></div>';
-            });
-            html += '</div>';
-        } else {
-            html += '<div class="pj-jour-libre"><i class="fas fa-check-circle"></i> Aucun événement : la salle est libre toute la journée.</div>';
+        /* ── Colonne des heures colorée par statut ──────────────────
+           Libre = vert, En attente = orange, Réservé = bleu,
+           Occupé = rouge, À reporter = jaune : la couleur informe.
+           Segments aux heures réelles des réservations.              */
+        var CLASSES_H = { LIBRE: 'pj-h-libre', OCCUPEE: 'pj-h-occupe', CONFIRMEE: 'pj-h-reserve', EN_ATTENTE: 'pj-h-attente', A_REPORTER: 'pj-h-reporter' };
+        var deux = function (n) { return (n < 10 ? '0' + n : '' + n); };
+        var plageDebut = deux(D.ouverture) + ':00';
+        var plageFin = deux(D.fermeture) + ':00';
+        var occurrences = d.occurrences || [];
+        var bruts = [];
+        occurrences.forEach(function (o, i) {
+            var dd = o.heure_debut < plageDebut ? plageDebut : o.heure_debut;
+            var ff = o.heure_fin > plageFin ? plageFin : o.heure_fin;
+            if (dd < ff) { bruts.push({ debut: dd, fin: ff, statut: o.statut, evenement: o.evenement, occ: i }); }
+        });
+        (d.creneaux_libres || []).forEach(function (z) {
+            bruts.push({ debut: z.debut, fin: z.fin, statut: 'LIBRE', evenement: null, occ: -1 });
+        });
+        bruts.sort(function (a, b) { return a.debut < b.debut ? -1 : (a.debut > b.debut ? 1 : 0); });
+
+        /* trous éventuels entre segments : créneaux libres */
+        var segments = [];
+        var curseur = plageDebut;
+        bruts.forEach(function (s) {
+            if (s.debut > curseur) {
+                segments.push({ debut: curseur, fin: s.debut, statut: 'LIBRE', evenement: null, occ: -1 });
+            }
+            if (s.fin > curseur) {
+                segments.push(s);
+                curseur = s.fin;
+            }
+        });
+        if (curseur < plageFin) {
+            segments.push({ debut: curseur, fin: plageFin, statut: 'LIBRE', evenement: null, occ: -1 });
         }
 
-        if (!(d.salle && d.salle.maintenance) && d.creneaux_libres && d.creneaux_libres.length > 0 && D.peutGerer) {
-            html += '<h4 class="pj-section"><i class="fas fa-plus-circle"></i> Programmer sur un créneau libre</h4>';
-            html += '<div class="pj-libres">';
-            d.creneaux_libres.forEach(function (z) {
-                html += '<button type="button" class="pj-libre-btn" data-debut="' + z.debut + '" data-fin="' + z.fin + '">' +
-                    '<i class="fas fa-plus"></i>' + heureCourte(z.debut) + ' – ' + heureCourte(z.fin) +
-                    '<span>programmer sur ce créneau</span></button>';
-            });
-            html += '</div>';
-            html += '<p class="aide-champ" style="margin-top:10px;">La programmation devient aussitôt « Réservé » : ' +
-                'plus aucune demande ne pourra chevaucher ce créneau.</p>';
+        var peutProgrammer = D.peutGerer && !(d.salle && d.salle.maintenance);
+
+        html += '<h4 class="pj-section"><i class="fas fa-clock"></i> Heures de la journée</h4>';
+        html += '<div class="pj-horaire">';
+        segments.forEach(function (s) {
+            var cl = CLASSES_H[s.statut] || 'pj-h-attente';
+            var libre = s.statut === 'LIBRE';
+            var ph = s.debut.split(':');
+            var pf = s.fin.split(':');
+            var demi = Math.max(1, Math.round(((+pf[0]) * 60 + (+pf[1]) - (+ph[0]) * 60 - (+ph[1])) / 30));
+            var libelle = libre ? 'Libre' : ((D.libellesStatut || {})[s.statut] || s.statut);
+            var actionnable = libre ? peutProgrammer : s.occ >= 0;
+            html += '<div class="pj-h-seg ' + cl + (actionnable ? ' action' : '') + '"' +
+                ' style="min-height:' + (26 + demi * 7) + 'px"' +
+                (actionnable ? ' role="button" tabindex="0"' : '') +
+                (libre ? ' data-debut="' + s.debut + '" data-fin="' + s.fin + '"' : ' data-occ="' + s.occ + '"') + '>' +
+                '<span class="pj-h-heures">' + heureCourte(s.debut) + ' – ' + heureCourte(s.fin) + '</span>' +
+                '<span class="pj-h-titre">' + (libre ? 'Créneau disponible' : echapper(s.evenement || 'Occupé')) + '</span>' +
+                '<span class="pj-h-badge">' + libelle + '</span>' +
+                (actionnable ? '<i class="fas ' + (libre ? 'fa-plus' : 'fa-info-circle') + ' pj-h-plus"></i>' : '') +
+                '</div>';
+        });
+        html += '</div>';
+        if (peutProgrammer) {
+            html += '<p class="aide-champ" style="margin-top:10px;">Cliquez sur un créneau vert pour programmer. ' +
+                'La programmation devient aussitôt « Réservé » : plus aucune demande ne pourra chevaucher ce créneau.</p>';
         }
 
         corps.innerHTML = html;
 
-        Array.prototype.forEach.call(corps.querySelectorAll('.pj-libre-btn'), function (btn) {
-            btn.addEventListener('click', function () {
-                formulaireProgrammation(d, btn.getAttribute('data-debut'), btn.getAttribute('data-fin'));
+        Array.prototype.forEach.call(corps.querySelectorAll('.pj-h-seg'), function (seg) {
+            if (!seg.classList.contains('action')) { return; }
+            var go = function () {
+                if (seg.hasAttribute('data-debut')) {
+                    formulaireProgrammation(d, seg.getAttribute('data-debut'), seg.getAttribute('data-fin'));
+                } else {
+                    var o = occurrences[parseInt(seg.getAttribute('data-occ'), 10)];
+                    if (o) {
+                        PlanningFiche.ouvrir({
+                            id: o.id, evenement: o.evenement, statut: o.statut,
+                            categorie: o.categorie, salle_id: o.salle_id,
+                            salle_nom: d.salle ? d.salle.nom : d.salleNom,
+                            date_debut: o.date_reservation,
+                            date_fin: o.date_fin || o.date_reservation,
+                            heure_debut: o.heure_debut, heure_fin: o.heure_fin,
+                            demandeur_nom: o.demandeur_nom, client: o.demandeur_organisation || null,
+                            formateur_id: o.formateur_id, nb_personnes: o.nb_personnes,
+                            email: o.demandeur_email, telephone: o.demandeur_telephone
+                        });
+                    }
+                }
+            };
+            seg.addEventListener('click', go);
+            seg.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
             });
         });
 
@@ -447,7 +512,50 @@
             this.min = document.getElementById('pjDateDebut').value;
             if (this.value && this.value < this.min) { this.value = ''; }
         });
-        document.getElementById('pjDebut').addEventListener('change', function () { majFins(zone, this.value, null); });
+
+        /* zones libres du jour affiché : adaptées quand la date change */
+        var zonesLibres = [{ debut: zone.debut, fin: zone.fin }];
+        function zoneContenant(h) {
+            var trouve = null;
+            zonesLibres.forEach(function (c) {
+                if (c.debut <= h && h < c.fin) { trouve = c; }
+            });
+            return trouve || zonesLibres[zonesLibres.length - 1];
+        }
+
+        document.getElementById('pjDateDebut').addEventListener('change', function () {
+            var fin = document.getElementById('pjDateFin');
+            fin.min = this.value;
+            if (fin.value && fin.value < this.value) { fin.value = this.value; }
+            var dateChoisie = this.value;
+            fetch(D.urls.jour + '?salle_id=' + encodeURIComponent(d.salle.id) + '&date=' + encodeURIComponent(dateChoisie), {
+                credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (j) {
+                    var selD = document.getElementById('pjDebut');
+                    if (j.erreur || !selD || !j.creneaux_libres) { return; }
+                    zonesLibres = j.creneaux_libres.length ? j.creneaux_libres : [{ debut: D.ouverture + ':00', fin: D.fermeture + ':00' }];
+                    var options = '';
+                    zonesLibres.forEach(function (c) {
+                        heuresDemi().forEach(function (h) {
+                            if (h >= c.debut && h < c.fin) {
+                                options += '<option value="' + h + '">' + heureCourte(h) + '</option>';
+                            }
+                        });
+                    });
+                    if (!options) {
+                        options = '<option value="">Jour complet : aucun créneau libre</option>';
+                    }
+                    selD.innerHTML = options;
+                    if (selD.querySelector('option[value="' + selD.value + '"]')) {
+                        selD.value = selD.value;
+                    }
+                    majFins(zoneContenant(selD.value), selD.value, null);
+                })
+                .catch(function () { /* hors connexion : on garde les options en place */ });
+        });
+        document.getElementById('pjDebut').addEventListener('change', function () { majFins(zoneContenant(this.value), this.value, null); });
         corps.querySelector('.pj-retour').addEventListener('click', function () { renduJournee(d, null, null); });
         document.getElementById('pjForm').addEventListener('submit', function (e) {
             e.preventDefault();

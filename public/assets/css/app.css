@@ -878,15 +878,16 @@ textarea { min-height: 90px; resize: vertical; }
     position: relative; height: 50px;
     background:
         repeating-linear-gradient(to right,
-            #d7eadf 0, #d7eadf 1px, transparent 1px, transparent calc(100% / (var(--nb-heures) * 2))),
+            #cfeeda 0, #cfeeda 1px, transparent 1px, transparent calc(100% / (var(--nb-heures) * 2))),
         repeating-linear-gradient(to right,
-            #bcd9c8 0, #bcd9c8 1.5px, transparent 1.5px, transparent calc(100% / var(--nb-heures))),
-        #e9f7ee; /* créneau libre : vert */
+            #a8d4bb 0, #a8d4bb 1.5px, transparent 1.5px, transparent calc(100% / var(--nb-heures))),
+        #ddf2e4; /* créneau libre : vert */
     border-left: 3px solid var(--bleu);
+    border-bottom: 5px solid #58bb7e; /* bande verte épaisse : créneau libre */
     cursor: pointer;
     overflow: hidden;
 }
-.g1-grille.weekend { background-color: #f2faf6; }
+.g1-grille.weekend { background-color: #e9f6ee; }
 .g1-separateur {
     height: 7px; background: #e4e7ef;
     box-shadow: 0 2px 4px rgba(30, 40, 80, .14);
@@ -910,22 +911,20 @@ textarea { min-height: 90px; resize: vertical; }
 }
 .g1-bloc:hover { filter: brightness(.96) saturate(1.15); z-index: 3; }
 .g1-bloc-titre {
-    font-size: 12px; line-height: 1.25; color: #2c3350;
+    font-size: 12px; line-height: 1.25; color: inherit;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     max-width: 100%;
-}
-.g1-bloc.confirme::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
-    background: #1fb96b; border-radius: 4px 4px 0 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
 }
 .g1-bloc.st-reporter {
-    background: rgba(255, 226, 100, .55) !important;
-    border: 2.5px solid #e3b71e; border-radius: 8px;
+    background: rgba(227, 183, 30, .75) !important;
+    border: 2.5px solid #a3830d; border-radius: 8px;
+    color: #3f3202; font-style: italic; font-weight: 700;
 }
 /* code couleur des statuts ( secours avant JS, mêmes teintes que Gantt ) */
-.g1-bloc.st-attente { background: rgba(196, 123, 14, .32); border-color: #c47b0e; color: #6b4a05; }
-.g1-bloc.st-reserve { background: rgba(63, 116, 168, .34); border-color: #3f74a8; color: #17324e; }
-.g1-bloc.st-occupe  { background: rgba(179, 18, 26, .32); border-color: #b3121a; color: #6d0a10; }
+.g1-bloc.st-attente { background: rgba(196, 123, 14, .78); border-color: #8f5905; color: #fff; }
+.g1-bloc.st-reserve { background: rgba(63, 116, 168, .82); border-color: #2a527e; color: #fff; }
+.g1-bloc.st-occupe  { background: rgba(179, 18, 26, .82); border-color: #7c0b12; color: #fff; }
 .g1-bloc.st-reporter .g1-bloc-titre { font-style: italic; font-weight: 800; }
 .g1-selection {
     position: absolute; top: 0; bottom: 0;
@@ -1105,7 +1104,8 @@ textarea { min-height: 90px; resize: vertical; }
 .ga2-bloc-salle { opacity: .85; }
 .ga2-bloc-client {
     text-transform: uppercase; font-weight: 800; letter-spacing: .02em;
-    color: #a02840;
+    color: inherit; opacity: .95;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .16);
 }
 .ga2-bloc.a-reporter {
     background: linear-gradient(180deg, rgba(255, 220, 80, .62), rgba(255, 232, 130, .5));
@@ -1472,6 +1472,42 @@ a:focus-visible, button:focus-visible {
     color: #0b6b3c; border-radius: 12px; padding: 14px 16px; font-weight: 600;
 }
 .pj-jour-libre i { font-size: 19px; }
+
+/* ── Colonne des heures colorée par statut ( vue du jour ) ────────
+   Libre = vert, En attente = orange, Réservé = bleu,
+   Occupé = rouge, À reporter = jaune.                            */
+.pj-horaire { display: flex; flex-direction: column; gap: 3px; margin: 4px 0 2px; }
+.pj-h-seg {
+    display: flex; align-items: center; gap: 12px;
+    border-radius: 8px; padding: 6px 12px;
+    border-left: 7px solid;
+    font-weight: 700; font-size: 13.5px;
+    transition: filter .1s ease, transform .06s ease;
+}
+.pj-h-seg.action { cursor: pointer; }
+.pj-h-seg.action:hover { filter: brightness(1.07); }
+.pj-h-seg.action:active { transform: scale(.995); }
+.pj-h-heures {
+    flex: 0 0 108px; font-variant-numeric: tabular-nums; font-weight: 800;
+    font-size: 12.5px; letter-spacing: .02em;
+}
+.pj-h-titre {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-weight: 700;
+}
+.pj-h-badge {
+    flex: 0 0 auto; font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .05em; border-radius: 20px; padding: 2px 9px;
+    background: rgba(255, 255, 255, .28);
+}
+.pj-h-plus { flex: 0 0 auto; font-size: 12px; opacity: .85; }
+.pj-h-libre   { background: #d9f2e2; border-color: #2f9e5f; color: #14572e; }
+.pj-h-libre .pj-h-badge { background: rgba(47, 158, 95, .18); }
+.pj-h-occupe  { background: #b3121a; border-color: #7c0b12; color: #fff; }
+.pj-h-reserve { background: #3f74a8; border-color: #2a527e; color: #fff; }
+.pj-h-attente { background: #c47b0e; border-color: #8f5905; color: #fff; }
+.pj-h-reporter { background: #e3b71e; border-color: #a3830d; color: #3f3202; font-style: italic; }
+.pj-h-reporter .pj-h-badge { background: rgba(255, 255, 255, .45); }
 
 .pj-libres { display: flex; flex-direction: column; gap: 8px; }
 .pj-libre-btn {
