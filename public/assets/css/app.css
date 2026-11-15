@@ -738,79 +738,242 @@ textarea { min-height: 90px; resize: vertical; }
 .flash-erreur { background: var(--rouge-clair); color: var(--rouge); border-color: #f3c3c8; }
 .flash-info   { background: var(--bleu-clair); color: var(--bleu); border-color: #ccd6f3; }
 
-/* ── Planning hebdomadaire ──────────────────────────────────────── */
+/* ── Planning : navigation semaine + bascule de vue ─────────────── */
 
-.planning-wrap { overflow-x: auto; }
-
-.planning {
-    display: grid;
-    grid-template-columns: 170px repeat(7, minmax(148px, 1fr));
-    gap: 4px;
-    min-width: 1180px;
-    font-size: 12.5px;
+.planning-nav {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
 }
-
-.planning .entete-jour {
-    background: var(--bleu);
-    color: #fff;
-    border-radius: 9px;
-    padding: 8px 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.35;
+.semaine-courante {
+    font-weight: 700; font-size: 16.5px; color: var(--bleu);
+    padding: 0 6px;
 }
-
-.planning .entete-jour .num { font-size: 15px; }
-
-.planning .case-salle {
-    background: var(--bleu-clair);
-    color: var(--bleu);
-    border-radius: 9px;
-    padding: 10px;
-    font-weight: 700;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 12.5px;
-    line-height: 1.3;
-}
-
-.planning .case-salle .cap { font-weight: 500; font-size: 10.5px; opacity: 0.7; }
-
-.planning .case-jour {
-    background: #fbfcff;
-    border-radius: 9px;
-    min-height: 58px;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.planning .case-jour.vide { background: #f4f6fb; }
-.planning .case-jour.weekend { background: #f2f3f8; }
-
-.evt {
-    border-radius: 7px;
-    padding: 5px 7px;
-    font-size: 11px;
-    line-height: 1.35;
+.pl-switch {
+    display: inline-flex; margin-left: auto;
+    border: 1.5px solid #d5dbf0; border-radius: 12px; overflow: hidden;
     background: #fff;
-    box-shadow: 0 1px 3px rgba(20, 30, 80, 0.08);
-    overflow: hidden;
+}
+.pl-switch-btn {
+    padding: 8px 16px; font-size: 14px; font-weight: 600;
+    color: #5563a6; background: #fff; border: none;
+    display: inline-flex; align-items: center; gap: 7px;
+    text-decoration: none; transition: background .12s ease, color .12s ease;
+}
+.pl-switch-btn + .pl-switch-btn { border-left: 1.5px solid #d5dbf0; }
+.pl-switch-btn:hover { background: var(--bleu-clair); }
+.pl-switch-btn.actif { background: var(--bleu); color: #fff; }
+
+.pl-legende { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; }
+.pl-leg-item {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13.5px; color: #4a5578;
+}
+.pl-puce {
+    width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0;
+    display: inline-block;
+}
+.p-libre { background: #e7ebf5; border: 1px solid #ccd4e8; }
+.p-EN_ATTENTE { background: #f3c493; }
+.p-CONFIRMEE { background: #6f9ec2; }
+.p-OCCUPEE { background: #b8444e; }
+
+/* ── Sélecteur de salles (pilules) ──────────────────────────────── */
+
+.pl-salles {
+    display: flex; flex-wrap: wrap; gap: 9px;
+    padding: 16px 20px 4px;
+}
+.pl-salle-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    background: #fff; border: 1.5px solid #d9def0;
+    font-weight: 600; font-size: 14px; color: var(--bleu);
+    text-decoration: none;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+}
+.pl-salle-pill:hover { background: var(--bleu-clair); }
+.pl-salle-pill.active {
+    background: var(--bleu); border-color: var(--bleu); color: #fff;
+}
+.pl-salle-pill .pl-salle-cap {
+    font-size: 12px; font-weight: 500; opacity: .75;
+}
+.pl-salle-pill .fa-tools { color: var(--orange); }
+.pl-salle-pill.active .fa-tools { color: #ffd9a0; }
+
+/* ── En-tête salle + statistiques de la semaine ─────────────────── */
+
+.pl-entete-salle {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px;
+    padding: 16px 20px 6px;
+}
+.pl-salle-id { display: flex; align-items: center; gap: 14px; min-width: 240px; flex: 1; }
+.pl-salle-icone {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--bleu-clair); color: var(--bleu);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 21px; flex-shrink: 0;
+}
+.pl-salle-id h2 { margin: 0; font-size: 21px; color: var(--bleu); }
+.pl-salle-id p { margin: 3px 0 0; font-size: 13.5px; color: #66708f; }
+.pl-badge-maint {
+    display: inline-block; vertical-align: middle; margin-left: 6px;
+    font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+    background: #fdf0da; color: var(--orange); border-radius: 8px; padding: 2px 9px;
+}
+.pl-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.pl-stat {
+    min-width: 128px; text-align: center;
+    background: var(--bleu-clair); border-radius: 14px; padding: 10px 16px 12px;
+}
+.pl-stat b {
+    display: block; font-size: 21px; color: var(--bleu); line-height: 1.2;
+}
+.pl-stat span { display: block; font-size: 12px; color: #66708f; }
+.pl-jauge {
+    display: block; height: 6px; border-radius: 4px;
+    background: #dbe1f5; margin-top: 7px; overflow: hidden;
+}
+.pl-jauge-fill {
+    display: block; height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, #4f79c1, var(--bleu));
 }
 
-.evt .evt-heure { font-weight: 700; font-size: 10.5px; }
-.evt .evt-titre { font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; }
+/* ── Grille semaine : jours en lignes, heures en colonnes ───────── */
 
-.evt-confirme { background: #fffaf0; }
-.evt-occupe   { background: #fff5f5; }
-.evt-attente  { background: #fffdf2; border-style: dashed; border-width: 1.5px; }
+.pl-wrap { overflow-x: auto; padding: 14px 20px 20px; }
+.pl-grille {
+    display: grid;
+    grid-template-columns: 165px repeat(14, minmax(58px, 1fr));
+    gap: 4px 0;
+    min-width: 980px;
+}
+.pl-coin { grid-column: 1; grid-row: 1; }
 
-.planning-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pl-heures {
+    grid-column: 2 / -1; grid-row: 1;
+    display: grid; grid-template-columns: repeat(14, 1fr);
+}
+.pl-heure {
+    text-align: center; font-size: 12.5px; font-weight: 600; color: #66708f;
+    padding: 7px 0;
+}
 
-.planning-nav .semaine-courante { font-size: 14px; font-weight: 700; color: var(--bleu); }
+.pl-cellule-jour {
+    grid-column: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6px 12px 6px 2px;
+    border-left: 4px solid #e2e7f5; border-radius: 6px;
+    min-height: 84px;
+}
+.pl-cellule-jour .pl-jour-nom {
+    font-weight: 700; font-size: 14.5px; color: #333a56;
+    text-transform: capitalize;
+}
+.pl-cellule-jour .pl-jour-date { font-size: 13px; color: #66708f; }
+.pl-cellule-jour .pl-badge-jour {
+    align-self: flex-start; margin-top: 3px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    background: var(--bleu); color: #fff; border-radius: 6px; padding: 1px 7px;
+}
+.pl-cellule-jour.weekend { background: #f2f4fa; }
+.pl-cellule-jour.aujourdhui { border-left-color: var(--bleu); background: var(--bleu-clair); }
+
+.pl-piste {
+    grid-column: 2 / -1;
+    position: relative; min-height: 84px;
+    background: #f7f9fd;
+    border: 1.5px solid #e4e9f5; border-radius: 10px;
+    cursor: pointer; overflow: hidden;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+.pl-piste.weekend { background: #f1f3f9; }
+.pl-piste:hover {
+    border-color: #aab6dd; box-shadow: 0 2px 10px rgba(28, 43, 107, .13);
+}
+.pl-piste.aujourdhui { border-color: #9fb0e2; }
+.pl-libre {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #98a2c0; text-align: center; padding: 0 10px;
+}
+
+/* Blocs événement positionnés sur leurs heures */
+.pl-evt {
+    position: absolute; top: 7px; bottom: 7px;
+    border-radius: 8px; padding: 5px 7px 5px 10px;
+    color: #fff; overflow: hidden; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    box-shadow: 0 2px 6px rgba(28, 43, 107, .22);
+    border-left: 4px solid rgba(255, 255, 255, .55);
+}
+.pl-evt:hover { filter: brightness(1.07); z-index: 3; }
+.pl-evt-heures {
+    font-size: 11px; font-weight: 700; opacity: .92; white-space: nowrap;
+}
+.pl-evt-titre {
+    font-size: 12.8px; font-weight: 700; line-height: 1.25;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-evt-meta {
+    font-size: 11.3px; opacity: .9; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.pl-evt.pl-evt-court .pl-evt-titre, .pl-evt.pl-evt-court .pl-evt-meta {
+    overflow: visible; white-space: normal;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
+.pl-evt.st-attente { background: #c47b0e; }
+.pl-evt.st-reserve { background: #3f74a8; }
+.pl-evt.st-occupe { background: #b3121a; }
+
+/* ── Vue synthèse : toutes les salles ───────────────────────────── */
+
+.pl-synthese {
+    display: grid;
+    grid-template-columns: 180px repeat(7, minmax(128px, 1fr));
+    gap: 6px;
+    min-width: 1080px;
+}
+.pl-syn-jour {
+    text-align: center; font-weight: 700; font-size: 14px; color: #333a56;
+    padding: 8px 4px; text-transform: capitalize;
+    border-bottom: 3px solid #e2e7f5;
+}
+.pl-syn-jour .num { display: block; font-weight: 500; font-size: 12.5px; color: #66708f; }
+.pl-syn-jour.aujourdhui { color: var(--bleu); border-bottom-color: var(--bleu); }
+
+.pl-syn-salle { padding: 6px 8px 6px 2px; }
+.pl-syn-salle a {
+    font-weight: 700; font-size: 14.5px; color: var(--bleu);
+    text-decoration: none;
+}
+.pl-syn-salle a:hover { text-decoration: underline; }
+.pl-syn-salle .cap { display: block; font-size: 12px; color: #66708f; }
+
+.pl-syn-case {
+    background: #f8fafd; border: 1.5px solid #e4e9f5; border-radius: 10px;
+    padding: 6px; min-height: 78px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+.pl-syn-case.vide::after {
+    content: "libre"; margin: auto; font-size: 11.5px; color: #a6b0cc;
+}
+.pl-syn-case.weekend { background: #f1f3f9; }
+.pl-syn-case:hover { border-color: #aab6dd; box-shadow: 0 2px 10px rgba(28, 43, 107, .13); }
+.pl-syn-evt { border-radius: 7px; padding: 4px 7px; color: #fff; }
+.pl-syn-evt .pl-syn-heures { display: block; font-size: 10.8px; font-weight: 700; opacity: .92; }
+.pl-syn-evt .pl-syn-titre {
+    display: block; font-size: 12.2px; font-weight: 700; line-height: 1.25;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pl-syn-evt .pl-syn-orga {
+    display: block; font-size: 11px; opacity: .9;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pl-syn-evt.st-attente { background: #c47b0e; }
+.pl-syn-evt.st-reserve { background: #3f74a8; }
+.pl-syn-evt.st-occupe { background: #b3121a; }
 
 /* ── Divers ─────────────────────────────────────────────────────── */
 
@@ -1016,102 +1179,186 @@ a:focus-visible, button:focus-visible {
     .carte-formation-visuel img, .carte-formation, .carte-formation-lien i { transition: none; }
 }
 
-/* ═════════════════════════════════════════════════════════════════
-   Planning : modal de la journée d'une salle (4 statuts, programmation)
-   ═════════════════════════════════════════════════════════════════ */
-.case-jour { cursor: pointer; transition: transform .08s ease, box-shadow .08s ease; }
-.case-jour:hover, .case-jour:focus-visible {
-    outline: 2px solid var(--bleu-moyen);
-    outline-offset: 1px;
-    background: #f6f8ff;
-}
+/* ── Modal « journée d'une salle » ──────────────────────────────── */
 
 .pj-voile {
-    position: fixed; inset: 0; z-index: 95;
-    background: rgba(12, 18, 55, 0.55);
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(18, 24, 48, .58);
     display: flex; align-items: center; justify-content: center;
     padding: 18px;
 }
+/* display: flex écraserait l'attribut hidden ( display: none UA ) */
 .pj-voile[hidden] { display: none; }
-.pj-modal {
-    background: #fff; border-radius: 16px;
-    width: 100%; max-width: 660px; max-height: 88vh;
-    overflow: auto; box-shadow: 0 24px 70px rgba(10, 15, 50, 0.35);
+.pj-modal, .pe-modal {
+    background: #fff; border-radius: 18px; width: min(680px, 100%);
+    max-height: calc(100vh - 40px);
+    display: flex; flex-direction: column;
+    box-shadow: 0 18px 60px rgba(10, 15, 40, .35);
+    overflow: hidden;
 }
-.pj-entete {
-    position: sticky; top: 0; z-index: 2;
-    background: var(--bleu); color: #fff;
-    padding: 14px 20px;
+.pj-modal { width: min(640px, 100%); }
+.pj-entete, .pe-entete {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 16px 22px;
+    border-bottom: 1.5px solid #eceef6;
+    flex-shrink: 0;
 }
-.pj-entete h3 { font-size: 16.5px; font-weight: 700; }
+.pj-entete h3, .pe-entete h3 {
+    margin: 0; font-size: 17.5px; color: var(--bleu);
+}
 .pj-fermer {
-    background: rgba(255,255,255,.16); color: #fff; border: none;
-    width: 34px; height: 34px; border-radius: 10px;
-    font-size: 19px; line-height: 1; cursor: pointer; flex-shrink: 0;
+    background: none; border: none; font-size: 26px; line-height: 1;
+    color: #8a93b4; cursor: pointer; padding: 2px 6px; border-radius: 8px;
 }
-.pj-fermer:hover { background: rgba(255,255,255,.28); }
-.pj-corps { padding: 16px 18px 20px; }
-.pj-chargement, .pj-erreur { text-align: center; padding: 18px 6px; }
+.pj-fermer:hover { color: var(--rouge); background: #fdf0f1; }
+.pj-corps { padding: 18px 22px 22px; overflow-y: auto; }
+.pj-chargement, .pj-erreur {
+    text-align: center; color: #66708f; padding: 22px 8px; margin: 0;
+}
 .pj-erreur { color: var(--rouge); font-weight: 600; }
 
-.pj-legende {
-    display: flex; flex-wrap: wrap; gap: 12px;
-    font-size: 12.5px; color: var(--gris-doux);
-    margin-bottom: 12px;
+.pj-fiche-salle {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bleu-clair); border-radius: 12px;
+    padding: 10px 14px; margin-bottom: 14px;
 }
-.pj-legende-item { display: inline-flex; align-items: center; gap: 6px; }
-.pj-puce { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-.p-LIBRE { background: var(--vert); }
-.p-EN_ATTENTE { background: var(--orange); }
-.p-CONFIRMEE { background: var(--bleu-moyen); }
-.p-OCCUPEE { background: var(--rouge); }
+.pj-fiche-salle i { font-size: 20px; color: var(--bleu); }
+.pj-fiche-salle strong { display: block; font-size: 15.5px; color: var(--bleu); }
+.pj-fiche-salle span { font-size: 12.8px; color: #66708f; }
 
 .pj-alerte {
-    background: var(--rouge-clair); color: #8a1220;
-    border: 1px solid #f0c4cb; border-radius: 10px;
-    padding: 10px 14px; margin-bottom: 12px; font-size: 13.5px;
+    display: flex; gap: 9px; align-items: center;
+    background: #fdf0da; color: #7c5407; border: 1.5px solid #f0d9b0;
+    border-radius: 10px; padding: 10px 14px; font-size: 13.8px; margin-bottom: 14px;
 }
 
-.pj-liste { display: flex; flex-direction: column; gap: 6px; }
-.pj-creneau {
-    display: flex; align-items: center; gap: 12px;
-    padding: 8px 12px; border-radius: 10px;
-    border: 1px solid var(--gris-bordure); border-left: 5px solid transparent;
+.pj-section {
+    margin: 18px 0 10px; font-size: 14.5px; color: var(--bleu);
+    text-transform: uppercase; letter-spacing: .03em;
 }
-.pj-horaire {
-    font-weight: 700; font-variant-numeric: tabular-nums;
-    min-width: 96px; font-size: 14px; color: var(--gris-texte);
+.pj-section i { margin-right: 7px; }
+
+.pj-evenements { display: flex; flex-direction: column; gap: 10px; }
+.pj-evt { display: flex; border-radius: 12px; overflow: hidden; }
+.pj-evt-barre { width: 7px; flex-shrink: 0; }
+.pj-evt.st-attente .pj-evt-barre { background: #c47b0e; }
+.pj-evt.st-reserve .pj-evt-barre { background: #3f74a8; }
+.pj-evt.st-occupe .pj-evt-barre { background: #b3121a; }
+.pj-evt-corps {
+    flex: 1; background: #f8fafd; padding: 10px 14px;
+    border: 1.5px solid #e4e9f5; border-left: none;
+    border-radius: 0 12px 12px 0;
 }
-.pj-etat { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.pj-evutile { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pj-evt-horaires { font-weight: 700; font-size: 14.5px; color: #333a56; }
+.pj-evt-duree { font-size: 12.5px; color: #66708f; }
 .pj-badge {
-    font-size: 11px; font-weight: 700; padding: 2px 10px;
-    border-radius: 20px; white-space: nowrap; color: #fff;
+    margin-left: auto; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+    border-radius: 999px; padding: 2px 10px; color: #fff;
 }
-.pj-evenement { font-size: 13px; color: var(--gris-texte); }
+.pj-badge.b-EN_ATTENTE { background: #c47b0e; }
+.pj-badge.b-CONFIRMEE { background: #3f74a8; }
+.pj-badge.b-OCCUPEE { background: #b3121a; }
+.pj-evt-titre { font-weight: 700; font-size: 15px; color: #22284a; margin-top: 4px; }
+.pj-evt-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px; }
+.pj-evt-meta span {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.8px; color: #576080;
+}
+.pj-evt-meta i { color: #8792b8; font-size: 12px; }
 
-.cren-LIBRE { border-left-color: var(--vert); background: #fbfefc; }
-.cren-EN_ATTENTE { border-left-color: var(--orange); background: var(--orange-clair); }
-.cren-CONFIRMEE { border-left-color: var(--bleu-moyen); background: var(--bleu-clair); }
-.cren-OCCUPEE { border-left-color: var(--rouge); background: var(--rouge-clair); }
-.b-LIBRE { background: var(--vert); }
-.b-EN_ATTENTE { background: var(--orange); }
-.b-CONFIRMEE { background: var(--bleu-moyen); }
-.b-OCCUPEE { background: var(--rouge); }
+.pj-jour-libre {
+    display: flex; align-items: center; gap: 10px;
+    background: #effaf3; border: 1.5px dashed #b7dcc5;
+    color: #0b6b3c; border-radius: 12px; padding: 14px 16px; font-weight: 600;
+}
+.pj-jour-libre i { font-size: 19px; }
 
-.pj-btn-add { flex-shrink: 0; }
+.pj-libres { display: flex; flex-direction: column; gap: 8px; }
+.pj-libre-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: #fff; border: 1.5px dashed #b7dcc5; border-radius: 11px;
+    padding: 10px 14px; cursor: pointer; font-family: inherit;
+    font-size: 14.5px; font-weight: 700; color: #0b6b3c;
+    transition: background .12s ease, border-color .12s ease;
+    text-align: left;
+}
+.pj-libre-btn span { font-size: 12.5px; font-weight: 500; color: #58876b; }
+.pj-libre-btn i { color: var(--vert); }
+.pj-libre-btn:hover { background: #effaf3; border-color: var(--vert); }
 
-.pj-form-titre { margin: 14px 0 4px; font-size: 15.5px; color: var(--bleu); }
-.pj-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-top: 10px; }
-.pj-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--gris-texte); }
+.pj-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+.pj-form label { display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; font-weight: 600; color: #333a56; }
+.pj-form label:nth-child(1), .pj-form label:nth-child(2) { grid-column: 1 / -1; }
 .pj-form input, .pj-form select {
-    border: 1px solid var(--gris-bordure); border-radius: 9px;
-    padding: 8px 10px; font-size: 14px; font-family: inherit; background: #fff;
+    border: 1.5px solid #d5dbeb; border-radius: 9px;
+    padding: 8px 11px; font-size: 14px; font-family: inherit; background: #fff;
 }
-.pj-form input:focus, .pj-form select:focus { outline: 2px solid var(--bleu-moyen); outline-offset: 0; }
-.pj-form .pj-entiere { grid-column: 1 / -1; }
+.pj-form input:focus, .pj-form select:focus {
+    outline: none; border-color: var(--bleu);
+    box-shadow: 0 0 0 3px rgba(28, 43, 107, .12);
+}
+.pj-message { grid-column: 1 / -1; margin: 0; }
 .pj-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
-.pj-message { grid-column: 1 / -1; }
+.pj-retour { margin-bottom: 12px; }
+.pj-form-titre { margin: 6px 0 14px; font-size: 16px; color: var(--bleu); }
+
+/* ── Modal « détail d'un événement » ────────────────────────────── */
+
+.pe-statut {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em;
+    border-radius: 999px; padding: 2px 11px; color: #fff; margin-bottom: 3px;
+}
+.pe-s-EN_ATTENTE { background: #c47b0e; }
+.pe-s-CONFIRMEE { background: #3f74a8; }
+.pe-s-OCCUPEE { background: #b3121a; }
+
+.pe-horaires {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 17px; font-weight: 700; color: var(--bleu);
+    background: var(--bleu-clair); border-radius: 12px;
+    padding: 11px 16px; margin-bottom: 14px;
+}
+.pe-horaires i { color: var(--bleu); }
+.pe-horaires span {
+    font-size: 13px; font-weight: 600; color: #66708f;
+    background: #fff; border-radius: 999px; padding: 3px 11px;
+}
+
+.pe-grille { display: flex; flex-direction: column; gap: 0; }
+.pe-ligne {
+    display: grid; grid-template-columns: 175px 1fr; gap: 12px;
+    padding: 10px 4px; font-size: 14.3px; color: #22284a;
+    border-bottom: 1px solid #f0f2f8; align-items: baseline;
+}
+.pe-ligne:last-child { border-bottom: none; }
+.pe-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; font-weight: 700; color: #66708f;
+    text-transform: uppercase; letter-spacing: .03em;
+}
+.pe-label i { color: #8792b8; font-size: 12.5px; }
+.pe-ligne small { color: #66708f; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .pl-switch { margin-left: 0; width: 100%; }
+    .pl-switch-btn { flex: 1; justify-content: center; }
+    .pl-entete-salle { flex-direction: column; align-items: stretch; }
+    .pl-stats { justify-content: stretch; }
+    .pl-stat { flex: 1; min-width: 100px; }
+    .pl-grille { grid-template-columns: 128px repeat(14, minmax(58px, 1fr)); }
+    .pl-cellule-jour { min-height: 96px; }
+    .pl-piste { min-height: 96px; }
+    .pl-synthese { grid-template-columns: 128px repeat(7, minmax(112px, 1fr)); }
+    .pj-form { grid-template-columns: 1fr; }
+    .pj-form label:nth-child(1), .pj-form label:nth-child(2) { grid-column: auto; }
+    .pe-ligne { grid-template-columns: 1fr; gap: 3px; }
+    .pj-modal, .pe-modal { border-radius: 14px; }
+}
 
 /* ═════════════════════════════════════════════════════════════════
    Bloc disponibilités (refus de créneau + propositions cliquables)
@@ -1141,9 +1388,6 @@ img, video, iframe { max-width: 100%; }
 
 
 @media (max-width: 560px) {
-    .pj-creneau { flex-wrap: wrap; }
-    .pj-horaire { min-width: 100%; }
-    .pj-btn-add { width: 100%; }
     .pj-voile { padding: 10px; }
     .pj-corps { padding: 12px; }
     .dispo-btn { width: 100%; text-align: center; }

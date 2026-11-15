@@ -1,8 +1,9 @@
 /* ═════════════════════════════════════════════════════════════════
-   GCF · Planning : modal de la journée d'une salle
-   Clic sur une case du planning → détail des créneaux horaires
-   (libre / en attente / réservé / occupé) et programmation
-   intelligente des heures libres par l'administration.
+   GCF · Planning : modals de la page Planning
+   1. Modal « journée d'une salle » : timeline horaire détaillée,
+      créneaux libres et programmation par l'administration.
+   2. Modal « détail d'un événement » : toutes les précisions
+      ( organisateur, client, effectif, coordonnées ).
    ═════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
@@ -16,6 +17,12 @@
     var organisateurDefaut = (document.getElementById('pjOrganisateur') || {}).value || 'Administration du centre';
     var urlJour = voile.getAttribute('data-url-jour');
     var urlProgrammer = voile.getAttribute('data-url-programmer');
+
+    /* ── Modal « détail d'un événement » ────────────────────────── */
+    var peVoile = document.getElementById('peVoile');
+    var peCorps = document.getElementById('peCorps');
+    var peTitre = document.getElementById('peTitre');
+    var peStatut = document.getElementById('peStatut');
 
     var LIBELLES = {
         LIBRE: 'Libre',
@@ -41,12 +48,30 @@
         return JOURS[d.getDay()] + ' ' + (+p[2]) + ' ' + MOIS[+p[1] - 1] + ' ' + p[0];
     }
 
+    function dateCourte(iso) {
+        var p = String(iso).split('-');
+        if (p.length !== 3) { return String(iso); }
+        var d = new Date(+p[0], +p[1] - 1, +p[2]);
+        return JOURS[d.getDay()].charAt(0).toUpperCase() + JOURS[d.getDay()].slice(1) + ' ' + (+p[2]) + ' ' + MOIS[+p[1] - 1];
+    }
+
     function heureCourte(h) {
         var p = String(h || '').split(':');
         return (p.length >= 2) ? p[0] + 'h' + p[1] : String(h || '');
     }
 
-    /* ── Ouverture du modal ─────────────────────────────────────── */
+    function duree(debut, fin) {
+        var pd = String(debut).split(':'), pf = String(fin).split(':');
+        var md = (+pd[0]) * 60 + (+pd[1]);
+        var mf = (+pf[0]) * 60 + (+pf[1]);
+        var d = Math.max(0, mf - md);
+        var h = Math.floor(d / 60), m = d % 60;
+        if (h === 0) { return m + ' min'; }
+        if (m === 0) { return h + ' h'; }
+        return h + ' h ' + (m < 10 ? '0' + m : m);
+    }
+
+    /* ── Ouverture du modal journée ────────────────────────────── */
     function ouvrir(salleId, salleNom, date) {
         titre.textContent = salleNom + ' · ' + dateFr(date);
         corps.innerHTML = '<p class="pj-chargement">Chargement de la journée…</p>';
@@ -71,80 +96,81 @@
             });
     }
 
-    /* ── Rendu de la liste des créneaux ─────────────────────────── */
+    /* ── Rendu : timeline détaillée de la journée ──────────────── */
     function rendu(d) {
         var html = '';
+
+        /* Fiche salle */
+        html += '<div class="pj-fiche-salle">';
+        html += '<i class="fas fa-door-open"></i><div><strong>' + echapper(d.salleNom) + '</strong>';
+        if (d.salle) {
+            html += '<span>' + (d.salle.capacite || '?') + ' places' +
+                (d.salle.localisation ? ' · ' + echapper(d.salle.localisation) : '') + '</span>';
+        }
+        html += '</div></div>';
 
         if (d.salle && d.salle.maintenance) {
             html += '<div class="pj-alerte"><i class="fas fa-tools"></i> Cette salle est actuellement en maintenance : ' +
                 'elle n\'accepte pas de nouvelle programmation.</div>';
         }
 
-        html += '<div class="pj-legende">' +
-            '<span class="pj-legende-item"><span class="pj-puce p-LIBRE"></span>Libre</span>' +
-            '<span class="pj-legende-item"><span class="pj-puce p-EN_ATTENTE"></span>En attente</span>' +
-            '<span class="pj-legende-item"><span class="pj-puce p-CONFIRMEE"></span>Réservé</span>' +
-            '<span class="pj-legende-item"><span class="pj-puce p-OCCUPEE"></span>Occupé</span>' +
-            '</div>';
+        /* Réservations de la journée : blocs détaillés */
+        if (d.occurrences && d.occurrences.length > 0) {
+            html += '<h4 class="pj-section"><i class="fas fa-calendar-day"></i> Déroulé de la journée</h4>';
+            html += '<div class="pj-evenements">';
+            d.occurrences.forEach(function (o) {
+                html += '<div class="pj-evt ' + (o.statut === 'OCCUPEE' ? 'st-occupe' : o.statut === 'CONFIRMEE' ? 'st-reserve' : 'st-attente') + '">';
+                html += '<div class="pj-evt-barre"></div>';
+                html += '<div class="pj-evt-corps">';
+                html += '<div class="pj-evutile"><span class="pj-evt-horaires">' +
+                    heureCourte(o.heure_debut) + ' – ' + heureCourte(o.heure_fin) + '</span>' +
+                    '<span class="pj-evt-duree">' + duree(o.heure_debut, o.heure_fin) + '</span>' +
+                    '<span class="pj-badge b-' + o.statut + '">' + (LIBELLES[o.statut] || o.statut) + '</span></div>';
+                html += '<div class="pj-evt-titre">' + echapper(o.evenement) + '</div>';
+                html += '<div class="pj-evt-meta">';
+                if (o.demandeur_nom) { html += '<span><i class="fas fa-user"></i>' + echapper(o.demandeur_nom) + '</span>'; }
+                if (o.demandeur_organisation) { html += '<span><i class="fas fa-building"></i>' + echapper(o.demandeur_organisation) + '</span>'; }
+                if (o.nb_personnes) { html += '<span><i class="fas fa-users"></i>' + echapper(o.nb_personnes) + ' pers.</span>'; }
+                if (o.demandeur_email) { html += '<span><i class="fas fa-envelope"></i>' + echapper(o.demandeur_email) + '</span>'; }
+                if (o.demandeur_telephone) { html += '<span><i class="fas fa-phone"></i>' + echapper(o.demandeur_telephone) + '</span>'; }
+                html += '</div></div></div>';
+            });
+            html += '</div>';
+        } else {
+            html += '<div class="pj-jour-libre"><i class="fas fa-check-circle"></i> Aucun événement : la salle est libre toute la journée.</div>';
+        }
 
-        html += '<div class="pj-liste">';
-        d.creneaux.forEach(function (c) {
-            var st = c.statut;
-            html += '<div class="pj-creneau cren-' + st + '">';
-            html += '<div class="pj-horaire">' + heureCourte(c.debut) + ' – ' + heureCourte(c.fin) + '</div>';
-            html += '<div class="pj-etat">';
-            html += '<span class="pj-badge b-' + st + '">' + LIBELLES[st] + '</span>';
-            if (st !== 'LIBRE' && c.evenement) {
-                html += '<span class="pj-evenement"><strong>' + echapper(c.evenement) + '</strong>' +
-                    ' · ' + heureCourte(c.resa_debut) + '–' + heureCourte(c.resa_fin) +
-                    (c.demandeur ? ' · ' + echapper(c.demandeur) : '') + '</span>';
-            }
+        /* Créneaux libres + programmation */
+        if (!(d.salle && d.salle.maintenance) && d.creneaux_libres && d.creneaux_libres.length > 0) {
+            html += '<h4 class="pj-section"><i class="fas fa-plus-circle"></i> Programmer sur un créneau libre</h4>';
+            html += '<div class="pj-libres">';
+            d.creneaux_libres.forEach(function (z) {
+                var libre = true;
+                (d.occurrences || []).forEach(function (o) {
+                    if (o.heure_debut < z.fin && o.heure_fin > z.debut) { libre = false; }
+                });
+                if (!libre) { return; }
+                html += '<button type="button" class="pj-libre-btn" data-debut="' + z.debut + '" data-fin="' + z.fin + '">' +
+                    '<i class="fas fa-plus"></i>' + heureCourte(z.debut) + ' – ' + heureCourte(z.fin) +
+                    '<span>programmer sur ce créneau</span></button>';
+            });
             html += '</div>';
-            if (st === 'LIBRE' && !(d.salle && d.salle.maintenance)) {
-                html += '<button type="button" class="btn btn-petit btn-vert pj-btn-add" data-debut="' + c.debut + '">' +
-                    '<i class="fas fa-plus"></i> Programmer</button>';
-            }
-            html += '</div>';
-        });
-        html += '</div>';
-        html += '<p class="aide-champ" style="margin-top:10px;">Cliquez sur « Programmer » pour occuper un créneau libre : ' +
-            'il devient aussitôt réservé et plus aucune demande ne pourra le chevaucher.</p>';
+            html += '<p class="aide-champ" style="margin-top:10px;">La programmation devient aussitôt « Réservé » : ' +
+                'plus aucune demande ne pourra chevaucher ce créneau.</p>';
+        }
 
         corps.innerHTML = html;
 
-        Array.prototype.forEach.call(corps.querySelectorAll('.pj-btn-add'), function (btn) {
+        Array.prototype.forEach.call(corps.querySelectorAll('.pj-libre-btn'), function (btn) {
             btn.addEventListener('click', function () {
-                formulaire(d, btn.getAttribute('data-debut'));
+                formulaire(d, btn.getAttribute('data-debut'), btn.getAttribute('data-fin'));
             });
         });
     }
 
-    /* ── Zones libres contiguës (pour la sélection intelligente) ── */
-    function zonesLibres(creneaux) {
-        var zones = [];
-        var courante = null;
-        creneaux.forEach(function (c) {
-            if (c.statut === 'LIBRE') {
-                if (courante && courante.fin === c.debut) {
-                    courante.fin = c.fin;
-                } else {
-                    courante = { debut: c.debut, fin: c.fin };
-                    zones.push(courante);
-                }
-            } else {
-                courante = null;
-            }
-        });
-        return zones;
-    }
-
     /* ── Formulaire de programmation d'un créneau libre ─────────── */
-    function formulaire(d, heureDebut) {
-        var zones = zonesLibres(d.creneaux);
-        var zone = null;
-        zones.forEach(function (z) { if (z.debut <= heureDebut && heureDebut < z.fin) { zone = z; } });
-        if (!zone) { zone = zones.length ? zones[0] : { debut: '07:00', fin: '21:00' }; }
-        if (heureDebut < zone.debut || heureDebut >= zone.fin) { heureDebut = zone.debut; }
+    function formulaire(d, heureDebut, borneFin) {
+        var zone = { debut: heureDebut, fin: borneFin || '21:00' };
 
         var heures = [];
         for (var h = 7; h <= 21; h++) { heures.push((h < 10 ? '0' + h : '' + h) + ':00'); }
@@ -178,7 +204,7 @@
         html += '<div class="pj-actions">' +
             '<button type="submit" class="btn btn-primaire"><i class="fas fa-calendar-plus"></i> Enregistrer la programmation</button>' +
             '</div>';
-        html += '<p class="aide-champ">La salle ' + echapper(d.salleNom) + ' est libre de ' + heureCourte(zone.debut) +
+        html += '<p class="aide-champ">Créneau libre visé : de ' + heureCourte(zone.debut) +
             ' à ' + heureCourte(zone.fin) + ' : les heures proposées s\'arrêtent à la prochaine occupation.</p>';
         html += '</form>';
 
@@ -256,24 +282,78 @@
             });
     }
 
-    /* ── Fermeture ──────────────────────────────────────────────── */
+    /* ── Modal « détail d'un événement » ( données de la grille ) ── */
+    function ouvrirEvenement(el) {
+        var statut = el.getAttribute('data-statut') || '';
+        peTitre.textContent = el.getAttribute('data-evenement') || 'Événement';
+        peStatut.textContent = LIBELLES[statut] || statut;
+        peStatut.className = 'pe-statut pe-s-' + statut;
+
+        var html = '';
+        html += '<div class="pe-horaires"><i class="fas fa-clock"></i>' +
+            heureCourte(el.getAttribute('data-debut')) + ' – ' + heureCourte(el.getAttribute('data-fin')) +
+            '<span>' + duree(el.getAttribute('data-debut'), el.getAttribute('data-fin')) + '</span></div>';
+        html += '<div class="pe-grille">';
+        html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-door-open"></i> Salle</span><span>' + echapper(el.getAttribute('data-salle')) +
+            ' <small>(' + echapper(el.getAttribute('data-capacite')) + ' places)</small></span></div>';
+        if (el.getAttribute('data-orga')) {
+            html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-user"></i> Organisateur</span><span>' + echapper(el.getAttribute('data-orga')) + '</span></div>';
+        }
+        if (el.getAttribute('data-organisation')) {
+            html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-building"></i> Client / organisation</span><span>' + echapper(el.getAttribute('data-organisation')) + '</span></div>';
+        }
+        if (el.getAttribute('data-nb')) {
+            html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-users"></i> Effectif</span><span>' + echapper(el.getAttribute('data-nb')) + ' personnes</span></div>';
+        }
+        if (el.getAttribute('data-email')) {
+            html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-envelope"></i> Email</span><span>' + echapper(el.getAttribute('data-email')) + '</span></div>';
+        }
+        if (el.getAttribute('data-tel')) {
+            html += '<div class="pe-ligne"><span class="pe-label"><i class="fas fa-phone"></i> Téléphone</span><span>' + echapper(el.getAttribute('data-tel')) + '</span></div>';
+        }
+        html += '</div>';
+        html += '<p class="aide-champ" style="margin-top:12px;">Pour modifier ou annuler cet événement, ouvrez la journée correspondante depuis la grille.</p>';
+
+        peCorps.innerHTML = html;
+        peVoile.hidden = false;
+        document.body.style.overflow = 'hidden';
+    }
+
+    /* ── Fermetures ─────────────────────────────────────────────── */
     function fermer() {
         voile.hidden = true;
+        if (peVoile) { peVoile.hidden = true; }
         document.body.style.overflow = '';
     }
 
     document.getElementById('pjFermer').addEventListener('click', fermer);
     voile.addEventListener('click', function (e) { if (e.target === voile) { fermer(); } });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !voile.hidden) { fermer(); } });
+    if (peVoile) {
+        document.getElementById('peFermer').addEventListener('click', fermer);
+        peVoile.addEventListener('click', function (e) { if (e.target === peVoile) { fermer(); } });
+    }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && (voile.hidden === false || (peVoile && peVoile.hidden === false))) { fermer(); } });
 
-    /* ── Clic sur les cases du planning ─────────────────────────── */
-    Array.prototype.forEach.call(document.querySelectorAll('.case-jour[data-salle-id]'), function (c) {
+    /* ── Clic sur les pistes / cases journée ───────────────────── */
+    Array.prototype.forEach.call(document.querySelectorAll('.pl-piste[data-salle-id], .pl-syn-case[data-salle-id]'), function (c) {
         function lancer() {
             ouvrir(c.getAttribute('data-salle-id'), c.getAttribute('data-salle-nom'), c.getAttribute('data-date'));
         }
         c.addEventListener('click', lancer);
         c.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); lancer(); }
+        });
+    });
+
+    /* ── Clic sur un événement : détail ( sans ouvrir la journée ) ── */
+    Array.prototype.forEach.call(document.querySelectorAll('.pl-evt'), function (el) {
+        function lancer(e) {
+            e.stopPropagation();
+            ouvrirEvenement(el);
+        }
+        el.addEventListener('click', lancer);
+        el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); ouvrirEvenement(el); }
         });
     });
 })();

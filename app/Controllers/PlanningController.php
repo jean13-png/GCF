@@ -16,37 +16,87 @@ final class PlanningController
     public function index(): void
     {
         $decalage = (int) ($_GET['semaine'] ?? 0);
+        $decalage = max(-52, min(52, $decalage));
         $lundi = new \DateTime('monday this week');
-        $lundi->modify(($decalage >= 0 ? '+' : '') . max(-52, min(52, $decalage)) . ' weeks');
+        $lundi->modify(($decalage >= 0 ? '+' : '') . $decalage . ' weeks');
         $dimanche = (clone $lundi)->modify('+6 days');
 
+        $salles = Salle::tous();
         $reservations = Reservation::entre($lundi->format('Y-m-d'), $dimanche->format('Y-m-d'));
 
-        // groupement : par salle puis par jour de la semaine
-        $grille = [];
-        foreach (Salle::tous() as $salle) {
-            foreach (range(0, 6) as $jour) {
-                $grille[$salle['id']][$jour] = [];
-            }
-        }
-        foreach ($reservations as $resa) {
-            $numeroJour = (int) date('w', strtotime($resa['date_reservation']));
-            $grille[$resa['salle_id']][($numeroJour + 6) % 7][] = $resa;
+        /* ── Mode d'affichage : grille d'une salle (défaut) ou
+              synthèse de toutes les salles ─────────────────────── */
+        $vue = ($_GET['vue'] ?? 'salle') === 'synthese' ? 'synthese' : 'salle';
+
+        /* ── Salle affichée dans la grille détaillée ───────────── */
+        $salleId = (int) ($_GET['salle_id'] ?? 0);
+        $salle = $salleId > 0 ? Salle::trouver($salleId) : null;
+        if ($salle === null && count($salles) > 0) {
+            $salle = $salles[0];
+            $salleId = (int) $salle['id'];
         }
 
+        /* ── Réservations de la semaine :
+              · parJour  : pour la grille détaillée de la salle
+              · grille   : par salle puis jour, pour la synthèse ── */
+        $parJour = [];
+        $grille = [];
+        foreach ($salles as $s) {
+            foreach (range(0, 6) as $jour) {
+                $grille[$s['id']][$jour] = [];
+            }
+        }
+        if ($salle !== null) {
+            foreach (range(0, 6) as $jour) {
+                $parJour[$jour] = [];
+            }
+        }
+
+        foreach ($reservations as $resa) {
+            $jour = ((int) date('w', strtotime($resa['date_reservation'])) + 6) % 7;
+            $grille[$resa['salle_id']][$jour][] = $resa;
+            if ((int) $resa['salle_id'] === $salleId) {
+                $parJour[$jour][] = $resa;
+            }
+        }
+
+        /* ── Statistiques d'occupation de la salle affichée ────── */
+        $nbEvenements = 0;
+        $minutesReservees = 0;
+        foreach ($parJour as $resas) {
+            foreach ($resas as $r) {
+                $nbEvenements++;
+                $minutesReservees += (strtotime($r['heure_fin']) - strtotime($r['heure_debut'])) / 60;
+            }
+        }
+        $capaciteHebdo = 7 * (self::HEURE_FERMETURE - self::HEURE_OUVERTURE) * 60;
+        $tauxOccupation = $capaciteHebdo > 0
+            ? (int) round($minutesReservees / $capaciteHebdo * 100)
+            : 0;
+
         view('planning/index', [
-            'salles'     => Salle::tous(),
-            'grille'     => $grille,
-            'lundi'      => $lundi,
-            'dimanche'   => $dimanche,
-            'decalage'   => $decalage,
-            'utilisateur'=> Auth::user(),
+            'salles'          => $salles,
+            'salle'           => $salle,
+            'salleId'         => $salleId,
+            'vue'             => $vue,
+            'parJour'         => $parJour,
+            'grille'          => $grille,
+            'lundi'           => $lundi,
+            'dimanche'        => $dimanche,
+            'decalage'        => $decalage,
+            'nbEvenements'    => $nbEvenements,
+            'heuresReservees' => round($minutesReservees / 60, 1),
+            'tauxOccupation'  => $tauxOccupation,
+            'heureOuverture'  => self::HEURE_OUVERTURE,
+            'heureFermeture'  => self::HEURE_FERMETURE,
+            'utilisateur'     => Auth::user(),
         ]);
     }
 
     /**
      * Détail d'une journée d'une salle (JSON) : découpage de la journée en
-     * créneaux d'une heure avec, pour chacun, son statut et son événement.
+     * créneaux d'une heure avec, pour chacun, son statut et son événement,
+     * plus les intervalles libres et les réservations complètes.
      * Utilisé par le modal du planning (clic sur une case du planning).
      */
     public function jour(): void
@@ -97,14 +147,22 @@ final class PlanningController
 
         echo json_encode([
             'salle' => [
-                'id'          => (int) $salle['id'],
-                'nom'         => $salle['nom'],
-                'capacite'    => (int) $salle['capacite'],
-                'maintenance' => (int) $salle['maintenance'] === 1,
+                'id'           => (int) $salle['id'],
+                'nom'          => $salle['nom'],
+                'capacite'     => (int) $salle['capacite'],
+                'localisation' => $salle['localisation'],
+                'equipements'  => $salle['equipements'],
+                'maintenance'  => (int) $salle['maintenance'] === 1,
             ],
-            'date'       => $date,
-            'occurrences'=> $occurrences,
-            'creneaux'   => $creneaux,
+            'date'            => $date,
+            'occurrences'     => $occurrences,
+            'creneaux'        => $creneaux,
+            'creneaux_libres' => Reservation::creneauxLibres(
+                $salleId,
+                $date,
+                sprintf('%02d:00', self::HEURE_OUVERTURE),
+                sprintf('%02d:00', self::HEURE_FERMETURE)
+            ),
         ], JSON_UNESCAPED_UNICODE);
     }
 
