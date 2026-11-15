@@ -358,6 +358,33 @@
                     piste.appendChild(bloc);
                 });
 
+                /* créneaux libres : encadrés de vert, étiquette « Libre » */
+                if (!ligneIndisponible(ligne)) {
+                    var occupees = new Array(colonnes);
+                    blocs.forEach(function (b) {
+                        for (var ic = Math.max(0, b.c.debut); ic <= Math.min(colonnes - 1, b.c.fin); ic++) {
+                            occupees[ic] = true;
+                        }
+                    });
+                    var debutLibre = -1;
+                    for (var jc = 0; jc <= colonnes; jc++) {
+                        var estLibre = jc < colonnes && !occupees[jc];
+                        if (estLibre && debutLibre < 0) { debutLibre = jc; }
+                        if (!estLibre && debutLibre >= 0) {
+                            var pl = G.poser({ type: 'demiJournees', colonnes: colonnes }, debutLibre, jc);
+                            var segLibre = document.createElement('div');
+                            segLibre.className = 'ga2-libre';
+                            segLibre.style.left = pl.gauche + '%';
+                            segLibre.style.width = pl.largeur + '%';
+                            segLibre.style.top = '4px';
+                            segLibre.style.height = (HAUT_LIGNE * nbCouches - 9) + 'px';
+                            segLibre.innerHTML = '<span>Libre</span>';
+                            piste.appendChild(segLibre);
+                            debutLibre = -1;
+                        }
+                    }
+                }
+
                 pistes.appendChild(piste);
             });
         });

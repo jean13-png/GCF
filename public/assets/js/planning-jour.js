@@ -136,14 +136,22 @@
         var grilles = document.querySelectorAll('.g1-grille');
         if (!grilles.length) { return; }
 
+        var deux = function (n) { return (n < 10 ? '0' + n : '' + n); };
+        var plageDebut = deux(D.ouverture) + ':00';
+        var plageFin = deux(D.fermeture) + ':00';
+
         var valeursVues = {};
         Array.prototype.forEach.call(grilles, function (grille) {
+            /* créneaux occupés de la journée ( triés ) */
+            var occupes = [];
             Array.prototype.forEach.call(grille.querySelectorAll('.g1-bloc'), function (bloc) {
                 var r = blocVersResa(bloc);
                 /* LA fonction unique de positionnement ( partagée avec la vue 2 ) */
                 var p = G.poser(echelleHeures, r.heure_debut, r.heure_fin);
                 bloc.style.left = p.gauche + '%';
                 bloc.style.width = p.largeur + '%';
+
+                occupes.push([r.heure_debut, r.heure_fin]);
 
                 var reporter = r.statut === 'A_REPORTER';
                 if (!reporter) {
@@ -160,6 +168,26 @@
                 } else {
                     valeursVues['A_REPORTER'] = true;
                 }
+            });
+
+            /* créneaux libres : encadrés de vert, étiquette « Libre » */
+            Array.prototype.forEach.call(grille.querySelectorAll('.g1-libre-seg'), function (s) { s.remove(); });
+            occupes.sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+            var curseur = plageDebut;
+            var trous = [];
+            occupes.forEach(function (t) {
+                if (t[0] > curseur) { trous.push([curseur, t[0]]); }
+                if (t[1] > curseur) { curseur = t[1]; }
+            });
+            if (curseur < plageFin) { trous.push([curseur, plageFin]); }
+            trous.forEach(function (t) {
+                var p = G.poser(echelleHeures, t[0], t[1]);
+                var seg = document.createElement('div');
+                seg.className = 'g1-libre-seg';
+                seg.style.left = p.gauche + '%';
+                seg.style.width = p.largeur + '%';
+                seg.innerHTML = '<span>Libre</span>';
+                grille.appendChild(seg);
             });
         });
         majLegende(Object.keys(valeursVues));

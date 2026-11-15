@@ -215,7 +215,7 @@ $planningData = [
                     </div>
                 <?php endforeach; ?>
                 <?php if ($evenementsJour === []): ?>
-                    <span class="g1-libre">libre</span>
+                    <span class="g1-libre" hidden>libre</span>
                 <?php endif; ?>
             </div>
             <div class="g1-separateur"></div>
@@ -287,7 +287,25 @@ $planningData = [
                     <span class="cap"><?= (int) $salle['capacite'] ?> places<?= (int) $salle['maintenance'] === 1 ? ' · maintenance' : '' ?></span>
                 </div>
                 <?php foreach ($jours as $index => $j): ?>
-                    <?php $eventsDuJour = $grille[$salle['id']][$index] ?? []; ?>
+                    <?php
+                    $eventsDuJour = $grille[$salle['id']][$index] ?? [];
+                    /* créneaux libres de la journée ( partials ) pour l'encadré vert */
+                    $triJour = $eventsDuJour;
+                    usort($triJour, static function (array $a, array $b): int { return strcmp(substr($a['heure_debut'], 0, 5), substr($b['heure_debut'], 0, 5)); });
+                    $fmtHM = static function (string $hm): string {
+                        [$h, $m] = explode(':', $hm);
+                        return (int) $h . 'h' . ((int) $m !== 0 ? $m : '');
+                    };
+                    $curseur = sprintf('%02d:00', $ouverture);
+                    $plageFin = sprintf('%02d:00', $fermeture);
+                    $libresJour = [];
+                    foreach ($triJour as $evt) {
+                        $debutEvt = substr($evt['heure_debut'], 0, 5);
+                        if ($debutEvt > $curseur) { $libresJour[] = $fmtHM($curseur) . '–' . $fmtHM($debutEvt); }
+                        if (substr($evt['heure_fin'], 0, 5) > $curseur) { $curseur = substr($evt['heure_fin'], 0, 5); }
+                    }
+                    if ($curseur < $plageFin) { $libresJour[] = $fmtHM($curseur) . '–' . $fmtHM($plageFin); }
+                    ?>
                     <div class="pl-syn-case <?= $eventsDuJour === [] ? 'vide' : '' ?> <?= $index >= 5 ? 'weekend' : '' ?> <?= $j->format('Y-m-d') === $aujourdhui ? 'aujourdhui' : '' ?>"
                          role="button" tabindex="0"
                          data-salle-id="<?= (int) $salle['id'] ?>"
@@ -302,6 +320,12 @@ $planningData = [
                                 <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
+                        <?php if ($eventsDuJour !== [] && $libresJour !== [] && (int) $salle['maintenance'] !== 1): ?>
+                            <?php foreach (array_slice($libresJour, 0, 3) as $libre): ?>
+                                <div class="pl-syn-libre">Libre <?= e($libre) ?></div>
+                            <?php endforeach; ?>
+                            <?php if (count($libresJour) > 3): ?><div class="pl-syn-libre">…</div><?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             <?php endforeach; ?>
