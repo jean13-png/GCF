@@ -878,15 +878,15 @@ textarea { min-height: 90px; resize: vertical; }
     position: relative; height: 50px;
     background:
         repeating-linear-gradient(to right,
-            #e6eaf4 0, #e6eaf4 1px, transparent 1px, transparent calc(100% / (var(--nb-heures) * 2))),
+            #d7eadf 0, #d7eadf 1px, transparent 1px, transparent calc(100% / (var(--nb-heures) * 2))),
         repeating-linear-gradient(to right,
-            #ccd5e8 0, #ccd5e8 1.5px, transparent 1.5px, transparent calc(100% / var(--nb-heures))),
-        #fff;
+            #bcd9c8 0, #bcd9c8 1.5px, transparent 1.5px, transparent calc(100% / var(--nb-heures))),
+        #e9f7ee; /* créneau libre : vert */
     border-left: 3px solid var(--bleu);
     cursor: pointer;
     overflow: hidden;
 }
-.g1-grille.weekend { background-color: #fafbfe; }
+.g1-grille.weekend { background-color: #f2faf6; }
 .g1-separateur {
     height: 7px; background: #e4e7ef;
     box-shadow: 0 2px 4px rgba(30, 40, 80, .14);
@@ -895,7 +895,7 @@ textarea { min-height: 90px; resize: vertical; }
 .g1-libre {
     position: absolute; inset: 0;
     display: grid; place-items: center;
-    font-size: 11.5px; color: #b6bfd9; letter-spacing: .08em;
+    font-size: 11.5px; color: #58a97c; letter-spacing: .08em;
 }
 
 .g1-bloc {
@@ -922,6 +922,10 @@ textarea { min-height: 90px; resize: vertical; }
     background: rgba(255, 226, 100, .55) !important;
     border: 2.5px solid #e3b71e; border-radius: 8px;
 }
+/* code couleur des statuts ( secours avant JS, mêmes teintes que Gantt ) */
+.g1-bloc.st-attente { background: rgba(196, 123, 14, .32); border-color: #c47b0e; color: #6b4a05; }
+.g1-bloc.st-reserve { background: rgba(63, 116, 168, .34); border-color: #3f74a8; color: #17324e; }
+.g1-bloc.st-occupe  { background: rgba(179, 18, 26, .32); border-color: #b3121a; color: #6d0a10; }
 .g1-bloc.st-reporter .g1-bloc-titre { font-style: italic; font-weight: 800; }
 .g1-selection {
     position: absolute; top: 0; bottom: 0;
@@ -1075,8 +1079,8 @@ textarea { min-height: 90px; resize: vertical; }
 .ga2-trait { position: absolute; top: 0; bottom: 0; width: 1px; background: #eef1f8; }
 .ga2-ligne {
     position: relative; height: 45px;
-    border-bottom: 1px solid #eef1f8;
-    background: #fff;
+    border-bottom: 1px solid #e7f0e9;
+    background: #f2faf5; /* créneaux libres : vert clair */
 }
 .ga2-ligne.indisponible { background: #fdeee6; }
 

@@ -337,14 +337,18 @@
                     bloc.style.height = (HAUT_LIGNE - 9) + 'px';
                     if (!reporter) {
                         var cle = valeurCritere(r);
-                        var coul = G.couleur(cle);
+                        /* code couleur des statuts : attente orange, réservé bleu,
+                           occupé rouge ( libre = fond vert des lignes ) */
+                        var coul = (critereCourant() === 'statut')
+                            ? G.couleurStatut(r.statut)
+                            : G.couleur(cle);
                         bloc.style.setProperty('--ga-fond', coul.fond);
                         bloc.style.setProperty('--ga-fond-haut', couleurSoutenue(coul.fond));
                         bloc.style.setProperty('--ga-bord', coul.bord);
                         bloc.style.setProperty('--ga-texte', coul.texte);
                         valeursLegende[cle] = true;
                     } else {
-                        valeursLegende['À reporter'] = true;
+                        valeursLegende['A_REPORTER'] = true;
                     }
                     bloc.innerHTML = '<span class="ga2-bloc-titre">' + G.echapper(r.evenement) + '</span>' +
                         '<span class="ga2-bloc-salle">' + G.echapper(r.salle_nom) + '</span>' +
@@ -396,11 +400,23 @@
     function majLegendeLocale(valeurs) {
         var zone = document.getElementById('gaLegende');
         if (!zone) { return; }
+        var parStatut = critereCourant() === 'statut';
+        var ordre = ['EN_ATTENTE', 'CONFIRMEE', 'OCCUPEE', 'A_REPORTER'];
+        if (parStatut) {
+            valeurs = valeurs.slice().sort(function (a, b) {
+                return ordre.indexOf(a) - ordre.indexOf(b);
+            });
+        }
         var html = '';
+        if (parStatut) {
+            html += '<span class="ga-leg-item"><span class="ga-leg-puce" style="background:' +
+                G.COULEUR_LIBRE.fond + ';border-color:' + G.COULEUR_LIBRE.bord + '"></span>Libre</span>';
+        }
         valeurs.forEach(function (v) {
-            var c = G.couleur(v);
+            var c = parStatut ? G.couleurStatut(v) : G.couleur(v);
+            var libelle = parStatut ? ((D.libellesStatut || {})[v] || v) : v;
             html += '<span class="ga-leg-item"><span class="ga-leg-puce" style="background:' + c.fond + ';border-color:' + c.bord + '"></span>' +
-                G.echapper(String(v).length > 22 ? String(v).substring(0, 21) + '…' : v) + '</span>';
+                G.echapper(String(libelle).length > 22 ? String(libelle).substring(0, 21) + '…' : libelle) + '</span>';
         });
         zone.innerHTML = html;
     }

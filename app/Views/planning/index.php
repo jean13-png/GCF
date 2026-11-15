@@ -123,10 +123,10 @@ $planningData = [
         </label>
         <label class="ga-opt">Couleur par
             <select id="gaCouleur">
+                <option value="statut" selected>Statut</option>
                 <option value="categorie">Catégorie</option>
                 <option value="client">Client</option>
                 <option value="salle">Salle</option>
-                <option value="statut">Statut</option>
             </select>
         </label>
         <div class="ga-legende" id="gaLegende" aria-live="polite"></div>
@@ -243,10 +243,10 @@ $planningData = [
         </label>
         <label class="ga-opt">Couleur par
             <select id="gaCouleur">
+                <option value="statut" selected>Statut</option>
                 <option value="categorie">Catégorie</option>
                 <option value="client">Client</option>
                 <option value="salle">Salle</option>
-                <option value="statut">Statut</option>
             </select>
         </label>
         <div class="ga-legende" id="gaLegende" aria-live="polite"></div>

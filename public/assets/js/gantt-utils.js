@@ -32,6 +32,21 @@ window.Gantt = (function () {
         return PALETTE[hachage(valeur) % PALETTE.length];
     }
 
+    /* ── Code couleur des statuts ( validé par la direction ) ─────────
+       Libre = vert, En attente = orange, Réservé = bleu,
+       Occupé = rouge, À reporter = jaune.                            */
+    var COULEURS_STATUT = {
+        EN_ATTENTE: { fond: 'rgba(196, 123, 14, .32)',  bord: '#c47b0e', texte: '#6b4a05' },
+        CONFIRMEE:  { fond: 'rgba(63, 116, 168, .34)',  bord: '#3f74a8', texte: '#17324e' },
+        OCCUPEE:    { fond: 'rgba(179, 18, 26, .32)',   bord: '#b3121a', texte: '#6d0a10' },
+        A_REPORTER: { fond: 'rgba(201, 154, 19, .42)',  bord: '#c99a13', texte: '#584402' }
+    };
+    var COULEUR_LIBRE = { fond: '#e9f7ee', bord: '#3fae64', texte: '#1d6b3c' };
+
+    function couleurStatut(statut) {
+        return COULEURS_STATUT[statut] || COULEURS_STATUT.EN_ATTENTE;
+    }
+
     /* ── Dates ( locales explicites, aucun décalage UTC ) ────────── */
     function dateDe(iso) {
         var p = String(iso).split('-');
@@ -155,6 +170,8 @@ window.Gantt = (function () {
     return {
         palette: PALETTE,
         couleur: couleur,
+        couleurStatut: couleurStatut,
+        COULEUR_LIBRE: COULEUR_LIBRE,
         poser: poser,
         dateDe: dateDe,
         verrouille: verrouille,

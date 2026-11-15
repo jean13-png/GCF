@@ -78,11 +78,23 @@
 
     function majLegende(valeurs) {
         if (!zoneLegende) { return; }
+        var parStatut = selCouleur && selCouleur.value === 'statut';
+        var ordre = ['EN_ATTENTE', 'CONFIRMEE', 'OCCUPEE', 'A_REPORTER'];
+        if (parStatut) {
+            valeurs = valeurs.slice().sort(function (a, b) {
+                return ordre.indexOf(a) - ordre.indexOf(b);
+            });
+        }
         var html = '';
+        if (parStatut) {
+            html += '<span class="ga-leg-item"><span class="ga-leg-puce" style="background:' +
+                G.COULEUR_LIBRE.fond + ';border-color:' + G.COULEUR_LIBRE.bord + '"></span>Libre</span>';
+        }
         valeurs.forEach(function (v) {
-            var c = G.couleur(v);
+            var c = parStatut ? G.couleurStatut(v) : G.couleur(v);
+            var libelle = parStatut ? ((D.libellesStatut || {})[v] || v) : v;
             html += '<span class="ga-leg-item"><span class="ga-leg-puce" style="background:' + c.fond + ';border-color:' + c.bord + '"></span>' +
-                echapper(String(v).length > 22 ? String(v).substring(0, 21) + '…' : v) + '</span>';
+                echapper(String(libelle).length > 22 ? String(libelle).substring(0, 21) + '…' : libelle) + '</span>';
         });
         zoneLegende.innerHTML = html;
     }
@@ -136,13 +148,17 @@
                 var reporter = r.statut === 'A_REPORTER';
                 if (!reporter) {
                     var cle = valeurCritere(r);
-                    var c = G.couleur(cle);
+                    /* code couleur des statuts : libre vert, attente orange,
+                       réservé bleu, occupé rouge, à reporter jaune */
+                    var c = (selCouleur && selCouleur.value === 'statut')
+                        ? G.couleurStatut(r.statut)
+                        : G.couleur(cle);
                     bloc.style.background = c.fond;
                     bloc.style.borderColor = c.bord;
                     bloc.style.color = c.texte;
                     valeursVues[cle] = true;
                 } else {
-                    valeursVues['À reporter'] = true;
+                    valeursVues['A_REPORTER'] = true;
                 }
             });
         });
