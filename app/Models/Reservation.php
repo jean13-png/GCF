@@ -36,17 +36,24 @@ final class Reservation
         );
     }
 
-    /** Un chevauchement existe-t-il déjà sur cette salle, ce jour, pour ces heures ? */
-    public static function conflitExiste(int $salleId, string $date, string $debut, string $fin, ?int $ignorerId = null): bool
+    /**
+     * Un chevauchement existe-t-il déjà sur cette salle, sur cette période
+     * ( une réservation peut couvrir plusieurs jours ), pour ces heures ?
+     */
+    public static function conflitExiste(int $salleId, string $dateDebut, ?string $dateFin, string $debut, string $fin, ?int $ignorerId = null): bool
     {
+        /* une réservation sans date_fin ne couvre que son premier jour */
+        $dateFin = $dateFin ?: $dateDebut;
         return Database::selectOne(
             'SELECT id FROM reservations
-             WHERE salle_id = ? AND date_reservation = ?
-               AND statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE")
+             WHERE salle_id = ?
+               AND statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE","A_REPORTER")
+               AND date_reservation <= ?
+               AND COALESCE(date_fin, date_reservation) >= ?
                AND heure_debut < ? AND heure_fin > ?
                AND (? IS NULL OR id <> ?)
              LIMIT 1',
-            [$salleId, $date, $fin, $debut, $ignorerId, $ignorerId]
+            [$salleId, $dateFin, $dateDebut, $fin, $debut, $ignorerId, $ignorerId]
         ) !== null;
     }
 
@@ -94,16 +101,23 @@ final class Reservation
         );
     }
 
-    /** Réservations d'une semaine (pour le planning), groupées par salle puis jour. */
-    public static function entre(string $lundi, string $dimanche): array
+    /**
+     * Réservations actives chevauchant une période ( chevauchement :
+     * une réservation commencée avant la période ou s'étendant au-delà
+     * est inclue ), avec salle, site et formateur.
+     */
+    public static function entre(string $debut, string $fin): array
     {
         return Database::select(
-            'SELECT r.*, s.nom AS salle_nom FROM reservations r
+            'SELECT r.*, s.nom AS salle_nom, s.site AS salle_site, s.maintenance AS salle_maintenance,
+                    u.nom AS formateur_nom, u.prenom AS formateur_prenom
+             FROM reservations r
              JOIN salles s ON s.id = r.salle_id
-             WHERE r.date_reservation BETWEEN ? AND ?
-               AND r.statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE")
+             LEFT JOIN users u ON u.id = r.formateur_id
+             WHERE r.date_reservation <= ? AND COALESCE(r.date_fin, r.date_reservation) >= ?
+               AND r.statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE","A_REPORTER")
              ORDER BY r.date_reservation, r.heure_debut',
-            [$lundi, $dimanche]
+            [$fin, $debut]
         );
     }
 
@@ -116,15 +130,18 @@ final class Reservation
        Journée d'une salle : créneaux, disponibilités, programmation
        ═══════════════════════════════════════════════════════════════ */
 
-    /** Réservations actives d'une salle pour une date précise (triées par heure). */
+    /**
+     * Réservations actives d'une salle couvrant une date précise
+     * ( y compris les réservations multi-jours qui l'englobent ).
+     */
     public static function duJour(int $salleId, string $date): array
     {
         $lignes = Database::select(
             'SELECT * FROM reservations
-             WHERE salle_id = ? AND date_reservation = ?
-               AND statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE")
+             WHERE salle_id = ? AND date_reservation <= ? AND COALESCE(date_fin, date_reservation) >= ?
+               AND statut IN ("EN_ATTENTE","CONFIRMEE","OCCUPEE","A_REPORTER")
              ORDER BY heure_debut',
-            [$salleId, $date]
+            [$salleId, $date, $date]
         );
         // Heures normalisées au format HH:MM (MySQL renvoie HH:MM:SS)
         foreach ($lignes as &$l) {
@@ -168,7 +185,7 @@ final class Reservation
         for ($i = 0; $i < $jours && count($datesAlternatives) < 4; $i++) {
             $essai->modify('+1 day');
             $jour = $essai->format('Y-m-d');
-            if (!self::conflitExiste($salleId, $jour, $debut, $fin, null)) {
+            if (!self::conflitExiste($salleId, $jour, $jour, $debut, $fin, null)) {
                 $datesAlternatives[] = $jour;
             }
         }
@@ -185,13 +202,46 @@ final class Reservation
     public static function creerAdmin(array $d): int
     {
         $id = Database::insert(
-            'INSERT INTO reservations (salle_id, demandeur_nom, demandeur_organisation, demandeur_email, demandeur_telephone, evenement, date_reservation, heure_debut, heure_fin, nb_personnes, statut, traite_par)
-             VALUES (?, ?, NULL, NULL, NULL, ?, ?, ?, ?, ?, "CONFIRMEE", ?)',
-            [$d['salle_id'], $d['demandeur_nom'], $d['evenement'], $d['date_reservation'], $d['heure_debut'], $d['heure_fin'],
-             $d['nb_personnes'] !== '' ? (int) $d['nb_personnes'] : null, Auth::id()]
+            'INSERT INTO reservations (salle_id, demandeur_nom, demandeur_organisation, demandeur_email, demandeur_telephone,
+                                       evenement, categorie, date_reservation, date_fin, heure_debut, heure_fin,
+                                       nb_personnes, statut, traite_par, formateur_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "CONFIRMEE", ?, ?)',
+            [$d['salle_id'], $d['demandeur_nom'], $d['organisation'] ?? null, $d['email'] ?? null, $d['telephone'] ?? null,
+             $d['evenement'], $d['categorie'] ?? null, $d['date_reservation'], $d['date_fin'] ?? null,
+             $d['heure_debut'], $d['heure_fin'],
+             $d['nb_personnes'] !== '' ? (int) $d['nb_personnes'] : null, Auth::id(),
+             !empty($d['formateur_id']) ? (int) $d['formateur_id'] : null]
         );
         self::journaliserEvent($id, 'CONFIRMEE', 'Programmé depuis le planning par l\'administration');
         return $id;
+    }
+
+    /** Modification d'une réservation depuis la fiche détail du planning. */
+    public static function modifier(int $id, array $d): void
+    {
+        Database::execute(
+            'UPDATE reservations SET
+                salle_id = ?, evenement = ?, categorie = ?, date_reservation = ?, date_fin = ?,
+                heure_debut = ?, heure_fin = ?, nb_personnes = ?, demandeur_nom = ?,
+                demandeur_organisation = ?, demandeur_email = ?, demandeur_telephone = ?,
+                formateur_id = ?, statut = ?
+             WHERE id = ?',
+            [(int) $d['salle_id'], $d['evenement'], $d['categorie'] ?? null,
+             $d['date_reservation'], $d['date_fin'] ?? null,
+             $d['heure_debut'], $d['heure_fin'],
+             $d['nb_personnes'] !== '' ? (int) $d['nb_personnes'] : null,
+             $d['demandeur_nom'], $d['organisation'] ?? null, $d['email'] ?? null, $d['telephone'] ?? null,
+             !empty($d['formateur_id']) ? (int) $d['formateur_id'] : null,
+             $d['statut'], $id]
+        );
+        self::journaliserEvent($id, $d['statut'], 'Modifiée depuis le planning par l\'administration');
+    }
+
+    /** Suppression d'une réservation et de son historique. */
+    public static function supprimer(int $id): void
+    {
+        Database::execute('DELETE FROM reservation_events WHERE reservation_id = ?', [$id]);
+        Database::execute('DELETE FROM reservations WHERE id = ?', [$id]);
     }
 
     public static function aVenir(int $limite = 8): array

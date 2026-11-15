@@ -50,6 +50,14 @@ final class User
         return Database::select('SELECT * FROM users WHERE role = "GESTIONNAIRE" AND actif = 1');
     }
 
+    /** Utilisateurs formateurs ( affectation des réservations du planning ). */
+    public static function formateurs(): array
+    {
+        return Database::select(
+            'SELECT id, nom, prenom, email FROM users WHERE role = "FORMATEUR" AND actif = 1 ORDER BY nom, prenom'
+        );
+    }
+
     public static function changerMotDePasse(int $id, string $nouveau): void
     {
         Database::execute(

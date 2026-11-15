@@ -110,7 +110,7 @@ final class SessionFormation
         $fin = $fin->modify('+1 day');
         $interval = new \DateInterval('P1D');
         foreach (new \DatePeriod($debut, $interval, $fin) as $jour) {
-            if (Reservation::conflitExiste((int) $session['salle_id'], $jour->format('Y-m-d'), $session['heure_debut'], $session['heure_fin'], null)) {
+            if (Reservation::conflitExiste((int) $session['salle_id'], $jour->format('Y-m-d'), $jour->format('Y-m-d'), $session['heure_debut'], $session['heure_fin'], null)) {
                 continue; // un conflit existe déjà : ce jour-là reste géré manuellement
             }
             Database::insert(

@@ -99,7 +99,7 @@ final class ReservationController
             redirect($retour);
         }
 
-        if (Reservation::conflitExiste((int) $_POST['salle_id'], $_POST['date_reservation'], $_POST['heure_debut'], $_POST['heure_fin'], null)) {
+        if (Reservation::conflitExiste((int) $_POST['salle_id'], $_POST['date_reservation'], $_POST['date_reservation'], $_POST['heure_debut'], $_POST['heure_fin'], null)) {
             // Refus + propositions concrètes : créneaux libres du jour et prochaines dates disponibles.
             $_SESSION['dispo_conflit'] = [
                 'salle'        => $salle['nom'],
@@ -162,7 +162,7 @@ final class ReservationController
         }
 
         if (in_array($action, ['valider', 'occuper'], true)
-            && Reservation::conflitExiste((int) $reservation['salle_id'], $reservation['date_reservation'], $reservation['heure_debut'], $reservation['heure_fin'], (int) $reservation['id'])) {
+            && Reservation::conflitExiste((int) $reservation['salle_id'], $reservation['date_reservation'], $reservation['date_reservation'], $reservation['heure_debut'], $reservation['heure_fin'], (int) $reservation['id'])) {
             Flash::set('erreur', 'Impossible : une autre réservation occupe déjà ce créneau sur cette salle.');
             redirect('/reservations');
         }

@@ -28,6 +28,7 @@ CREATE TABLE users (
 CREATE TABLE salles (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     nom           VARCHAR(120) NOT NULL,
+    site          VARCHAR(100) NOT NULL DEFAULT 'Cotonou',
     capacite      INT          NOT NULL DEFAULT 20,
     equipements   VARCHAR(255) DEFAULT NULL,
     localisation  VARCHAR(120) DEFAULT NULL,
@@ -45,17 +46,23 @@ CREATE TABLE reservations (
     demandeur_email        VARCHAR(190) DEFAULT NULL,
     demandeur_telephone    VARCHAR(30)  DEFAULT NULL,
     evenement              VARCHAR(200) NOT NULL,
+    categorie              VARCHAR(50)  DEFAULT NULL,
     date_reservation       DATE NOT NULL,
+    date_fin               DATE DEFAULT NULL,
     heure_debut            TIME NOT NULL,
     heure_fin              TIME NOT NULL,
     nb_personnes           INT  DEFAULT NULL,
-    statut                 ENUM('EN_ATTENTE','CONFIRMEE','OCCUPEE','REFUSEE','ANNULEE','TERMINEE') NOT NULL DEFAULT 'EN_ATTENTE',
+    statut                 ENUM('EN_ATTENTE','CONFIRMEE','OCCUPEE','A_REPORTER','REFUSEE','ANNULEE','TERMINEE') NOT NULL DEFAULT 'EN_ATTENTE',
     commentaire            TEXT,
     traite_par             INT DEFAULT NULL,
+    formateur_id           INT DEFAULT NULL,
     cree_le                DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_resa_salle  FOREIGN KEY (salle_id)  REFERENCES salles(id),
     CONSTRAINT fk_resa_traite FOREIGN KEY (traite_par) REFERENCES users(id),
-    INDEX idx_resa_date (salle_id, date_reservation, statut)
+    CONSTRAINT fk_resa_formateur FOREIGN KEY (formateur_id) REFERENCES users(id),
+    INDEX idx_resa_date (salle_id, date_reservation, statut),
+    INDEX idx_resa_formateur (formateur_id),
+    INDEX idx_resa_periode (date_reservation, date_fin)
 ) ENGINE=InnoDB;
 
 -- Historique des changements de statut (qui a coché quoi, et quand)

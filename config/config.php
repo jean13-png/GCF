@@ -24,4 +24,11 @@ return [
         'from'      => 'contact@centredesformation.bj',
         'from_name' => 'Centre de formation',
     ],
+    'planning' => [
+        // Plage horaire affichée dans les grilles du planning ( configurable ).
+        'ouverture' => 6,
+        'fermeture' => 22,
+        // Nombre de semaines chargées d'avance dans la vue Ressources.
+        'semaines_ressources' => 8,
+    ],
 ];

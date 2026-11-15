@@ -7,23 +7,27 @@ for ($i = 0; $i < 7; $i++) {
     $jours[] = (clone $lundi)->modify("+$i days");
 }
 
-$classesStatut  = ['EN_ATTENTE' => 'st-attente', 'CONFIRMEE' => 'st-reserve', 'OCCUPEE' => 'st-occupe'];
-$libellesStatut = ['EN_ATTENTE' => 'En attente', 'CONFIRMEE' => 'Réservé', 'OCCUPEE' => 'Occupé'];
+$libellesStatut = [
+    'EN_ATTENTE' => 'En attente',
+    'CONFIRMEE'  => 'Réservé',
+    'OCCUPEE'    => 'Occupé',
+    'A_REPORTER' => 'À reporter',
+];
+$classesStatut = [
+    'EN_ATTENTE' => 'st-attente',
+    'CONFIRMEE'  => 'st-reserve',
+    'OCCUPEE'    => 'st-occupe',
+    'A_REPORTER' => 'st-reporter',
+];
 
-/* Positionnement temporel ( minutes ) sur la plage d'ouverture */
-$OUV  = $heureOuverture * 60;
-$FER  = $heureFermeture * 60;
-$SPAN = $FER - $OUV;
-
-$minutesHoraire = static function (string $h): int {
-    $p = explode(':', substr($h, 0, 5));
-    return ((int) $p[0]) * 60 + (int) ($p[1] ?? 0);
-};
-$pct = static function (string $h) use ($OUV, $SPAN, $minutesHoraire): float {
-    return max(0.0, min(100.0, ($minutesHoraire($h) - $OUV) / $SPAN * 100));
+/* Couverture multi-jours d'une réservation */
+$couvre = static function (array $r, string $date): bool {
+    $fin = $r['date_fin'] ?: $r['date_reservation'];
+    return $r['date_reservation'] <= $date && $fin >= $date;
 };
 
 $aujourdhui = (new \DateTime())->format('Y-m-d');
+$nbHeures = $fermeture - $ouverture;
 
 $urlBase = static function (array $params = []) use ($decalage, $vue, $salleId) {
     $params += ['semaine' => $decalage, 'vue' => $vue];
@@ -32,6 +36,33 @@ $urlBase = static function (array $params = []) use ($decalage, $vue, $salleId) 
     }
     return url('/planning?' . http_build_query($params));
 };
+
+/* Données embarquées pour le JavaScript ( vues Gantt + fiche détail ) */
+$planningData = [
+    'urls' => [
+        'jour'        => url('/planning/jour'),
+        'donnees'     => url('/planning/donnees'),
+        'programmer'  => url('/planning/programmer'),
+        'modifier'    => url('/planning/modifier'),
+        'supprimer'   => url('/planning/supprimer'),
+    ],
+    'csrf'     => \App\Core\CSRF::token(),
+    'ouverture'=> $ouverture,
+    'fermeture'=> $fermeture,
+    'semaineDebut' => $lundi->format('Y-m-d'),
+    'peutGerer'=> $peutGerer,
+    'organisateurDefaut' => trim(($utilisateur['prenom'] ?? '') . ' ' . ($utilisateur['nom'] ?? '')),
+    'salles'   => array_map(static function (array $s) {
+        return ['id' => (int) $s['id'], 'nom' => $s['nom'], 'site' => $s['site'] ?: 'Cotonou',
+                'capacite' => (int) $s['capacite'], 'maintenance' => (int) $s['maintenance'] === 1];
+    }, $salles),
+    'formateurs' => array_map(static function (array $f) {
+        return ['id' => (int) $f['id'], 'nom' => $f['nom'], 'prenom' => $f['prenom']];
+    }, $formateurs),
+    'categories' => $categories,
+    'statuts'    => $statuts,
+    'libellesStatut' => $libellesStatut,
+];
 ?>
 
 <div class="carte">
@@ -43,7 +74,7 @@ $urlBase = static function (array $params = []) use ($decalage, $vue, $salleId) 
             </span>
             <a class="btn btn-petit btn-discret" href="<?= e(url('/planning?' . http_build_query(['semaine' => $decalage + 1, 'vue' => $vue] + ($vue === 'salle' ? ['salle_id' => $salleId] : [])))) ?>">Semaine suivante <i class="fas fa-chevron-right"></i></a>
             <?php if ($decalage !== 0): ?>
-                <a class="btn btn-petit btn-bleu" href="<?= e($urlBase(['semaine' => 0])) ?>">Cette semaine</a>
+                <a class="btn btn-petit btn-bleu" href="<?= e($urlBase(['semaine' => 0])) ?>"><i class="fas fa-calendar-day"></i> Aujourd'hui</a>
             <?php endif; ?>
 
             <span class="pl-switch" role="group" aria-label="Mode d'affichage">
@@ -55,51 +86,16 @@ $urlBase = static function (array $params = []) use ($decalage, $vue, $salleId) 
                    href="<?= e(url('/planning?' . http_build_query(['semaine' => $decalage, 'vue' => 'synthese']))) ?>">
                    <i class="fas fa-th-large"></i> Synthèse
                 </a>
+                <a class="pl-switch-btn <?= $vue === 'ressources' ? 'actif' : '' ?>"
+                   href="<?= e(url('/planning?' . http_build_query(['semaine' => $decalage, 'vue' => 'ressources']))) ?>">
+                   <i class="fas fa-stream"></i> Ressources
+                </a>
             </span>
-        </div>
-        <div class="pl-legende">
-            <span class="pl-leg-item"><span class="pl-puce p-libre"></span> Libre</span>
-            <span class="pl-leg-item"><span class="pl-puce p-EN_ATTENTE"></span> En attente</span>
-            <span class="pl-leg-item"><span class="pl-puce p-CONFIRMEE"></span> Réservé</span>
-            <span class="pl-leg-item"><span class="pl-puce p-OCCUPEE"></span> Occupé</span>
         </div>
     </div>
 </div>
 
 <?php if ($vue === 'salle' && $salle !== null): ?>
-
-<?php
-/* Événements de la salle affichée, triés puis positionnés sur la piste du jour */
-$eventsJour = static function (int $jour) use ($parJour, $classesStatut, $pct, $salle) {
-    $html = '';
-    foreach ($parJour[$jour] ?? [] as $evt) {
-        $gauche = $pct($evt['heure_debut']);
-        $largeur = max(2.5, $pct($evt['heure_fin']) - $gauche);
-        $court = ($largeur < 9) ? ' pl-evt-court' : '';
-        $maintenance = '';
-        $orga = trim(($evt['demandeur_nom'] ?? '') . (($evt['demandeur_organisation'] ?? '') !== '' ? ' · ' . $evt['demandeur_organisation'] : ''));
-        $html .= '<div class="pl-evt ' . e($classesStatut[$evt['statut']] ?? '') . $court . '" role="button" tabindex="0"'
-            . ' style="left:' . number_format($gauche, 2, '.', '') . '%;width:' . number_format($largeur, 2, '.', '') . '%"'
-            . ' data-evenement="' . e($evt['evenement']) . '"'
-            . ' data-statut="' . e($evt['statut']) . '"'
-            . ' data-debut="' . e(substr($evt['heure_debut'], 0, 5)) . '"'
-            . ' data-fin="' . e(substr($evt['heure_fin'], 0, 5)) . '"'
-            . ' data-orga="' . e($evt['demandeur_nom'] ?? '') . '"'
-            . ' data-organisation="' . e($evt['demandeur_organisation'] ?? '') . '"'
-            . ' data-email="' . e($evt['demandeur_email'] ?? '') . '"'
-            . ' data-tel="' . e($evt['demandeur_telephone'] ?? '') . '"'
-            . ' data-nb="' . e($evt['nb_personnes'] ?? '') . '"'
-            . ' data-salle="' . e($salle['nom']) . '"'
-            . ' data-capacite="' . (int) $salle['capacite'] . '"'
-            . ' title="' . e($evt['evenement']) . '">'
-            . '<span class="pl-evt-heures">' . e(format_heure(substr($evt['heure_debut'], 0, 5))) . ' – ' . e(format_heure(substr($evt['heure_fin'], 0, 5))) . '</span>'
-            . '<span class="pl-evt-titre">' . e($evt['evenement']) . '</span>'
-            . ($orga !== '' ? '<span class="pl-evt-meta">' . e($orga) . '</span>' : '')
-            . '</div>';
-    }
-    return $html;
-};
-?>
 
 <div class="carte">
     <!-- Sélecteur de salle -->
@@ -114,70 +110,159 @@ $eventsJour = static function (int $jour) use ($parJour, $classesStatut, $pct, $
         <?php endforeach; ?>
     </div>
 
-    <!-- En-tête salle + statistiques de la semaine -->
-    <div class="pl-entete-salle">
-        <div class="pl-salle-id">
-            <div class="pl-salle-icone"><i class="fas fa-door-open"></i></div>
-            <div>
-                <h2><?= e($salle['nom']) ?><?= (int) $salle['maintenance'] === 1 ? ' <span class="pl-badge-maint"><i class="fas fa-tools"></i> maintenance</span>' : '' ?></h2>
-                <p>
-                    <?= (int) $salle['capacite'] ?> places
-                    <?= $salle['localisation'] !== null && $salle['localisation'] !== '' ? ' · ' . e($salle['localisation']) : '' ?>
-                    <?= $salle['equipements'] !== null && $salle['equipements'] !== '' ? ' · ' . e($salle['equipements']) : '' ?>
-                </p>
-            </div>
+    <!-- Barre d'options commune -->
+    <div class="ga-options">
+        <label class="ga-opt ga-cacher-salle">Affichage
+            <select id="gaAffichage">
+                <option value="site-salle">Par site / Salle</option>
+                <option value="site-formateur">Par site / Formateur</option>
+                <option value="client-formateur">Par client / Formateur</option>
+                <option value="formateur-client">Par formateur / Client</option>
+                <option value="defaut">Par défaut</option>
+            </select>
+        </label>
+        <label class="ga-opt">Couleur par
+            <select id="gaCouleur">
+                <option value="categorie">Catégorie</option>
+                <option value="client">Client</option>
+                <option value="salle">Salle</option>
+                <option value="statut">Statut</option>
+            </select>
+        </label>
+        <div class="ga-legende" id="gaLegende" aria-live="polite"></div>
+        <label class="ga-opt-check ga-cacher-salle"><input type="checkbox" id="gaCondenser"> Condenser l'échelle des temps</label>
+        <label class="ga-opt-check ga-cacher-salle"><input type="checkbox" id="gaWeekends"> Afficher les week-ends</label>
+        <label class="ga-opt-check"><input type="checkbox" id="gaAlertes"> Afficher les messages d'alerte</label>
+        <button type="button" class="btn btn-petit btn-discret" id="gaActualiser"><i class="fas fa-sync-alt"></i> Actualiser</button>
+    </div>
+    <div class="ga-alertes" id="gaAlertesZone" hidden></div>
+
+    <!-- En-tête salle : icône plan + nom en MAJUSCULES + statistiques -->
+    <div class="g1-entete">
+        <div class="g1-titre">
+            <span class="g1-icone"><i class="fas fa-th-large"></i></span>
+            <h2><?= e(mb_strtoupper($salle['nom'])) ?></h2>
+            <span class="pl-badge-maint"><?= (int) $salle['capacite'] ?> places<?= (int) $salle['maintenance'] === 1 ? ' · maintenance' : '' ?></span>
         </div>
         <div class="pl-stats">
-            <div class="pl-stat">
-                <b><?= $nbEvenements ?></b>
-                <span>événement<?= $nbEvenements > 1 ? 's' : '' ?> cette semaine</span>
-            </div>
-            <div class="pl-stat">
-                <b><?= number_format((float) $heuresReservees, 1, ',', ' ') ?> h</b>
-                <span>réservées</span>
-            </div>
-            <div class="pl-stat">
-                <b><?= $tauxOccupation ?> %</b>
-                <span>d'occupation</span>
+            <div class="pl-stat"><b><?= $nbEvenements ?></b><span>événement<?= $nbEvenements > 1 ? 's' : '' ?></span></div>
+            <div class="pl-stat"><b><?= number_format((float) $heuresReservees, 1, ',', ' ') ?> h</b><span>réservées</span></div>
+            <div class="pl-stat"><b><?= $tauxOccupation ?> %</b><span>d'occupation</span>
                 <span class="pl-jauge"><span class="pl-jauge-fill" style="width:<?= min(100, $tauxOccupation) ?>%"></span></span>
             </div>
         </div>
     </div>
 
-    <!-- Grille semaine : jours en lignes, heures en colonnes -->
-    <div class="pl-wrap">
-        <div class="pl-grille">
-            <div class="pl-coin"></div>
-            <div class="pl-heures">
-                <?php for ($h = $heureOuverture; $h < $heureFermeture; $h++): ?>
-                    <div class="pl-heure"><?= $h ?><span>h</span></div>
-                <?php endfor; ?>
-            </div>
+    <!-- Règle horaire : heures en bleu centrées sur les traits -->
+    <div class="g1-regle" style="--nb-heures:<?= $nbHeures ?>">
+        <?php for ($h = $ouverture; $h <= $fermeture; $h++): ?>
+            <?php $pos = ($h - $ouverture) / $nbHeures * 100; ?>
+            <?php if ($h < $fermeture): ?>
+                <span class="g1-regle-heure" style="left:<?= $pos ?>%"><?= $h ?></span>
+            <?php else: ?>
+                <span class="g1-regle-heure g1-regle-bord" style="left:<?= $pos ?>%"><?= $h ?></span>
+            <?php endif; ?>
+        <?php endfor; ?>
+    </div>
 
-            <?php foreach ($jours as $index => $j): ?>
-                <?php $estAujourdhui = $j->format('Y-m-d') === $aujourdhui; ?>
-                <div class="pl-cellule-jour <?= $estAujourdhui ? 'aujourdhui' : '' ?> <?= $index >= 5 ? 'weekend' : '' ?>">
-                    <span class="pl-jour-nom"><?= e(jour_fr((int) $j->format('w'))) ?></span>
-                    <span class="pl-jour-date"><?= (int) $j->format('d') ?> <?= e(mois_fr((int) $j->format('n'))) ?> <?= $j->format('Y') ?></span>
-                    <?php if ($estAujourdhui): ?><span class="pl-badge-jour">Aujourd'hui</span><?php endif; ?>
-                </div>
-                <div class="pl-piste <?= $index >= 5 ? 'weekend' : '' ?> <?= $estAujourdhui ? 'aujourdhui' : '' ?>"
-                     role="button" tabindex="0"
-                     data-salle-id="<?= (int) $salle['id'] ?>"
-                     data-salle-nom="<?= e($salle['nom']) ?>"
-                     data-date="<?= e($j->format('Y-m-d')) ?>"
-                     title="Voir la journée du <?= e(format_date_fr($j->format('Y-m-d'))) ?> et programmer un créneau libre">
-                    <?= $eventsJour($index) ?>
-                    <?php if (($parJour[$index] ?? []) === []): ?>
-                        <span class="pl-libre">Toute la journée libre — cliquez pour programmer</span>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
+    <!-- 7 bandes jour : bandeau d'en-tête + zone de grille 50px + séparateur -->
+    <?php foreach ($jours as $index => $j): ?>
+        <?php
+        $dateIso = $j->format('Y-m-d');
+        $estAujourdhui = $dateIso === $aujourdhui;
+        $evenementsJour = array_values(array_filter($resasSalle, static function (array $r) use ($couvre, $dateIso) {
+            return $couvre($r, $dateIso);
+        }));
+        ?>
+        <section class="g1-bande <?= $estAujourdhui ? 'aujourdhui' : '' ?>">
+            <div class="g1-bandeau <?= $index >= 5 ? 'weekend' : '' ?>">
+                <span class="g1-bandeau-date"><?= e(ucfirst(jour_fr((int) $j->format('w')))) ?> <?= (int) $j->format('d') ?> <?= e(mois_fr((int) $j->format('n'))) ?> <?= $j->format('Y') ?></span>
+                <?php if ($estAujourdhui): ?><span class="g1-badge-jour">Aujourd'hui</span><?php endif; ?>
+            </div>
+            <div class="g1-grille <?= $index >= 5 ? 'weekend' : '' ?>"
+                 style="--nb-heures:<?= $nbHeures ?>"
+                 role="button" tabindex="0"
+                 data-salle-id="<?= (int) $salle['id'] ?>"
+                 data-salle-nom="<?= e($salle['nom']) ?>"
+                 data-date="<?= e($dateIso) ?>"
+                 title="Voir la journée et programmer un créneau libre">
+                <?php foreach ($evenementsJour as $evt): ?>
+                    <?php
+                    $client = $evt['demandeur_organisation'] ?: $evt['demandeur_nom'];
+                    ?>
+                    <div class="g1-bloc <?= $evt['statut'] === 'CONFIRMEE' ? 'confirme' : '' ?> <?= $classesStatut[$evt['statut']] ?? '' ?>"
+                         role="button" tabindex="0"
+                         data-id="<?= (int) $evt['id'] ?>"
+                         data-debut="<?= e(substr($evt['heure_debut'], 0, 5)) ?>"
+                         data-fin="<?= e(substr($evt['heure_fin'], 0, 5)) ?>"
+                         data-evenement="<?= e($evt['evenement']) ?>"
+                         data-categorie="<?= e($evt['categorie'] ?? '') ?>"
+                         data-statut="<?= e($evt['statut']) ?>"
+                         data-salle="<?= e($salle['nom']) ?>"
+                         data-salle-id="<?= (int) $salle['id'] ?>"
+                         data-capacite="<?= (int) $salle['capacite'] ?>"
+                         data-orga="<?= e($evt['demandeur_nom'] ?? '') ?>"
+                         data-organisation="<?= e($evt['demandeur_organisation'] ?? '') ?>"
+                         data-email="<?= e($evt['demandeur_email'] ?? '') ?>"
+                         data-tel="<?= e($evt['demandeur_telephone'] ?? '') ?>"
+                         data-nb="<?= e($evt['nb_personnes'] ?? '') ?>"
+                         data-formateur-id="<?= e($evt['formateur_id'] ?? '') ?>"
+                         data-date-debut="<?= e($evt['date_reservation']) ?>"
+                         data-date-fin="<?= e($evt['date_fin'] ?: $evt['date_reservation']) ?>"
+                         title="<?= e($evt['evenement']) ?>">
+                         <span class="g1-bloc-titre"><?= e($evt['evenement']) ?></span>
+                    </div>
+                <?php endforeach; ?>
+                <?php if ($evenementsJour === []): ?>
+                    <span class="g1-libre">libre</span>
+                <?php endif; ?>
+            </div>
+            <div class="g1-separateur"></div>
+        </section>
+    <?php endforeach; ?>
+
+    <p class="aide-champ" style="margin-top:12px;">
+        Cliquez sur un bloc pour ouvrir sa fiche ( modification, suppression ).
+        Cliquez sur une zone libre d'une journée pour programmer un créneau.
+    </p>
+</div>
+
+<?php elseif ($vue === 'ressources'): ?>
+
+<div class="carte">
+    <!-- Barre d'options commune -->
+    <div class="ga-options">
+        <label class="ga-opt">Affichage
+            <select id="gaAffichage">
+                <option value="site-salle">Par site / Salle</option>
+                <option value="site-formateur">Par site / Formateur</option>
+                <option value="client-formateur">Par client / Formateur</option>
+                <option value="formateur-client">Par formateur / Client</option>
+                <option value="defaut">Par défaut</option>
+            </select>
+        </label>
+        <label class="ga-opt">Couleur par
+            <select id="gaCouleur">
+                <option value="categorie">Catégorie</option>
+                <option value="client">Client</option>
+                <option value="salle">Salle</option>
+                <option value="statut">Statut</option>
+            </select>
+        </label>
+        <div class="ga-legende" id="gaLegende" aria-live="polite"></div>
+        <label class="ga-opt-check"><input type="checkbox" id="gaCondenser"> Condenser l'échelle des temps</label>
+        <label class="ga-opt-check"><input type="checkbox" id="gaWeekends"> Afficher les week-ends</label>
+        <label class="ga-opt-check"><input type="checkbox" id="gaAlertes"> Afficher les messages d'alerte</label>
+        <button type="button" class="btn btn-petit btn-discret" id="gaActualiser"><i class="fas fa-sync-alt"></i> Actualiser</button>
+    </div>
+    <div class="ga-alertes" id="gaAlertesZone" hidden></div>
+
+    <div id="gaConteneur" class="ga2-conteneur" data-debut="<?= e($lundi->format('Y-m-d')) ?>">
+        <p class="pj-chargement">Chargement du planning des ressources…</p>
     </div>
     <p class="aide-champ" style="margin-top:12px;">
-        Cliquez sur un événement pour afficher son détail complet ( organisateur, effectif, coordonnées ).
-        Cliquez sur une zone libre de la journée pour ouvrir le planning détaillé et programmer un créneau.
+        Glissez un bloc pour changer son jour ou sa ressource, tirez ses bords pour changer sa durée :
+        les conflits sont vérifiés avant validation. Cliquez sur une zone vide pour créer une réservation.
     </p>
 </div>
 
@@ -222,8 +307,8 @@ $eventsJour = static function (int $jour) use ($parJour, $classesStatut, $pct, $
         </div>
     </div>
     <p class="aide-champ" style="margin-top:12px;">
-        Vue d'ensemble des salles pour la semaine. Cliquez sur le nom d'une salle pour afficher sa grille horaire
-        détaillée, ou sur une case pour ouvrir la journée.
+        Vue d'ensemble des salles pour la semaine. Cliquez sur le nom d'une salle pour afficher sa grille
+        Gantt détaillée, ou sur une case pour ouvrir la journée.
     </p>
 </div>
 
@@ -244,13 +329,13 @@ $eventsJour = static function (int $jour) use ($parJour, $classesStatut, $pct, $
     </div>
 </div>
 
-<!-- ═══════════ Modal : détail d'un événement ═══════════ -->
+<!-- ═══════════ Modal : fiche d'une réservation ( détail + modification + suppression ) ═══════════ -->
 <div class="pj-voile" id="peVoile" hidden>
     <div class="pe-modal" role="dialog" aria-modal="true" aria-labelledby="peTitre">
         <div class="pe-entete" id="peEnteteBarre">
             <div>
                 <span class="pe-statut" id="peStatut">Réservé</span>
-                <h3 id="peTitre">Événement</h3>
+                <h3 id="peTitre">Réservation</h3>
             </div>
             <button type="button" class="pj-fermer" id="peFermer" aria-label="Fermer">&times;</button>
         </div>
@@ -258,9 +343,15 @@ $eventsJour = static function (int $jour) use ($parJour, $classesStatut, $pct, $
     </div>
 </div>
 
+<!-- Tooltip partagé ( survol des blocs ) -->
+<div class="ga-tooltip" id="gaTooltip" hidden></div>
+
 <input type="hidden" id="pjCsrf" value="<?= e(\App\Core\CSRF::token()) ?>">
 <input type="hidden" id="pjOrganisateur" value="<?= e(trim(($utilisateur['prenom'] ?? '') . ' ' . ($utilisateur['nom'] ?? ''))) ?>">
 
+<script>window.PLANNING_DATA = <?= json_encode($planningData, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+<script src="<?= asset('js/gantt-utils.js') ?>"></script>
 <script src="<?= asset('js/planning-jour.js') ?>"></script>
+<script src="<?= asset('js/planning-ressources.js') ?>"></script>
 
 <?php require dirname(__DIR__) . '/layout/bas.php'; ?>
