@@ -3,8 +3,10 @@ namespace App\Core;
 
 /**
  * Envoi des e-mails de la plateforme.
- * Driver "log" : chaque e-mail est journalisé en base (mode local / démonstration).
- * Driver "mail" : envoi réel via la fonction mail() de PHP (hébergement configuré).
+ * Driver "log"  : chaque e-mail est journalisé en base (mode local / démonstration).
+ * Driver "mail"  : envoi via la fonction mail() de PHP (hébergement configuré).
+ * Driver "smtp"  : envoi réel via PHPMailer et le SMTP de la boîte officielle
+ *                  de l'ONG (infos@ongglobalactionsolidarite.com, Hostinger).
  */
 final class Mailer
 {
@@ -13,7 +15,9 @@ final class Mailer
         $html = self::enveloppe($sujet, $contenuHtml);
         $statut = 'LOG';
 
-        if (config('mail.driver') === 'mail') {
+        if (config('mail.driver') === 'smtp') {
+            $statut = self::envoyerSmtp($destinataire, $sujet, $html);
+        } elseif (config('mail.driver') === 'mail') {
             $entetes = 'From: ' . config('mail.from_name') . ' <' . config('mail.from') . ">\r\n"
                 . "Content-Type: text/html; charset=UTF-8\r\n";
             $statut = mail($destinataire, $sujet, $html, $entetes) ? 'ENVOYE' : 'ECHEC';
@@ -23,6 +27,47 @@ final class Mailer
             'INSERT INTO emails (destinataire, sujet, corps, statut, cree_le) VALUES (?, ?, ?, ?, NOW())',
             [$destinataire, $sujet, $html, $statut]
         );
+    }
+
+    /**
+     * Envoi réel via PHPMailer sur le SMTP Hostinger de la boîte infos@.
+     * Retourne le statut à journaliser (ENVOYE / ECHEC).
+     */
+    private static function envoyerSmtp(string $destinataire, string $sujet, string $html): string
+    {
+        $racinePHPMailer = dirname(__DIR__) . '/Lib/PHPMailer/src/PHPMailer.php';
+        if (!is_file($racinePHPMailer)) {
+            error_log('[GCF Mailer] PHPMailer introuvable : ' . $racinePHPMailer);
+            return 'ECHEC';
+        }
+
+        require_once $racinePHPMailer;
+        require_once dirname(__DIR__) . '/Lib/PHPMailer/src/Exception.php';
+        require_once dirname(__DIR__) . '/Lib/PHPMailer/src/SMTP.php';
+
+        try {
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = (string) config('mail.host');
+            $mail->Port = (int) config('mail.port');
+            $mail->SMTPAuth = true;
+            $mail->Username = (string) config('mail.user');
+            $mail->Password = (string) config('mail.pass');
+            $mail->SMTPSecure = config('mail.securite') === 'starttls'
+                ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS
+                : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+            $mail->CharSet = 'UTF-8';
+            $mail->setFrom((string) config('mail.from'), (string) config('mail.from_name'));
+            $mail->addAddress($destinataire);
+            $mail->isHTML(true);
+            $mail->Subject = $sujet;
+            $mail->Body = $html;
+            $mail->send();
+            return 'ENVOYE';
+        } catch (\Throwable $e) {
+            error_log('[GCF Mailer] Envoi SMTP échoué (' . $destinataire . ') : ' . $e->getMessage());
+            return 'ECHEC';
+        }
     }
 
     private static function enveloppe(string $sujet, string $contenu): string
