@@ -498,4 +498,33 @@ final class PlanningController
         $c = trim((string) ($_POST['categorie'] ?? ''));
         return $c !== '' ? mb_substr($c, 0, 50) : null;
     }
+
+    /**
+     * Export PDF du planning de la semaine affichée : vue d'ensemble puis une page par salle.
+     */
+    public function exporter(): void
+    {
+        $decalage = (int) ($_GET['semaine'] ?? 0);
+        $decalage = max(-52, min(52, $decalage));
+        $lundi = new \DateTime('monday this week');
+        $lundi->modify(($decalage >= 0 ? '+' : '') . $decalage . ' weeks');
+        $dimanche = (clone $lundi)->modify('+6 days');
+
+        $salles = Salle::tous();
+        $reservations = Reservation::entre($lundi->format('Y-m-d'), $dimanche->format('Y-m-d'));
+        $pdf = (new \App\Core\PdfPlanning())->semaine(
+            $salles,
+            $reservations,
+            $lundi->format('Y-m-d'),
+            $dimanche->format('Y-m-d'),
+            $this->fermeture - $this->ouverture
+        );
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="planning_salles_' . $lundi->format('Y-m-d') . '.pdf"');
+        header('Content-Length: ' . strlen($pdf));
+        header('Cache-Control: no-store');
+        echo $pdf;
+        exit;
+    }
 }

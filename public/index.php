@@ -73,6 +73,7 @@ $router->post('/reservations/statut/{id}', [ReservationController::class, 'chang
 $router->get('/planning', [PlanningController::class, 'index'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
 $router->get('/planning/jour', [PlanningController::class, 'jour'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
 $router->get('/planning/donnees', [PlanningController::class, 'donnees'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
+$router->get('/planning/export', [PlanningController::class, 'exporter'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);
 
 // ── Messages de contact (page Contact du site public) ──────────────
 $router->get('/messages', [ContactController::class, 'liste'], ['ADMIN', 'GESTIONNAIRE']);

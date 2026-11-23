@@ -77,6 +77,7 @@ $planningData = [
                 <a class="btn btn-petit btn-bleu" href="<?= e($urlBase(['semaine' => 0])) ?>"><i class="fas fa-calendar-day"></i> Aujourd'hui</a>
             <?php endif; ?>
 
+            <a class="btn btn-petit btn-bleu" href="<?= e(url('/planning/export?' . http_build_query(['semaine' => $decalage]))) ?>"><i class="fas fa-file-pdf"></i> Exporter en PDF</a>
             <span class="pl-switch" role="group" aria-label="Mode d'affichage">
                 <a class="pl-switch-btn <?= $vue === 'salle' ? 'actif' : '' ?>"
                    href="<?= e(url('/planning?' . http_build_query(['semaine' => $decalage, 'vue' => 'salle', 'salle_id' => $salleId]))) ?>">
