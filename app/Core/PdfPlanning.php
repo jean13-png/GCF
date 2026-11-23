@@ -68,6 +68,7 @@ final class PdfPlanning
         $titre = 'Planning des salles : vue de la semaine';
         $wSalle = 130.0;
         $wJour = (self::LARGEUR - 2 * self::MARGE - $wSalle) / 7;
+        $maxLignes = 7;
 
         $this->page($titre, $periode);
         $this->entetesJours($lundi, $wSalle, $wJour);
@@ -77,15 +78,28 @@ final class PdfPlanning
             $hauteur = 42.0;
             for ($j = 0; $j < 7; $j++) {
                 $jour = $this->decaler($lundi, $j);
+                $matches = array_values(array_filter(
+                    $reservations,
+                    fn($r) => (int) $r['salle_id'] === (int) $salle['id'] && $this->couvre($r, $jour)
+                ));
                 $lignes = [];
-                foreach ($reservations as $r) {
-                    if ((int) $r['salle_id'] === (int) $salle['id'] && $this->couvre($r, $jour)) {
-                        $lignes[] = [substr($r['heure_debut'], 0, 5) . '-' . substr($r['heure_fin'], 0, 5) . ' ' . $r['evenement'], $r['statut']];
+                $affichees = 0;
+                foreach ($matches as $r) {
+                    $morceaux = array_merge(
+                        [substr($r['heure_debut'], 0, 5) . ' – ' . substr($r['heure_fin'], 0, 5)],
+                        $this->decouper((string) $r['evenement'], 7.5, false, $wJour - 8, 2)
+                    );
+                    if (count($lignes) + count($morceaux) > $maxLignes) {
+                        break;
                     }
+                    foreach ($morceaux as $i => $m) {
+                        $lignes[] = [$m, $r['statut'], $i === 0];
+                    }
+                    $affichees++;
                 }
-                $cases[$j] = $lignes;
-                $n = min(count($lignes), 4) + (count($lignes) > 4 ? 1 : 0);
-                $hauteur = max($hauteur, $n * 11 + 14);
+                $reste = count($matches) - $affichees;
+                $cases[$j] = [$lignes, $reste];
+                $hauteur = max($hauteur, count($lignes) * 10 + ($reste > 0 ? 10 : 0) + 14);
             }
 
             if ($this->curseur + $hauteur > self::HAUTEUR - 60) {
@@ -105,12 +119,12 @@ final class PdfPlanning
             for ($j = 0; $j < 7; $j++) {
                 $x = self::MARGE + $wSalle + $j * $wJour;
                 $this->ligne($x, $y, $x, $y + $hauteur, self::LIGNE);
-                $lignes = $cases[$j];
-                foreach (array_slice($lignes, 0, 4) as $k => [$txt, $statut]) {
-                    $this->texte($x + 4, $y + 6 + $k * 11, $this->ajuster($txt, 7.5, false, $wJour - 8), 7.5, false, self::STATUT_COULEUR[$statut] ?? self::INK);
+                [$lignes, $reste] = $cases[$j];
+                foreach ($lignes as $k => [$txt, $statut, $gras]) {
+                    $this->texte($x + 4, $y + 6 + $k * 10, $this->ajuster($txt, 7.5, $gras, $wJour - 8), 7.5, $gras, self::STATUT_COULEUR[$statut] ?? self::INK);
                 }
-                if (count($lignes) > 4) {
-                    $this->texte($x + 4, $y + 6 + 4 * 11, '+ ' . (count($lignes) - 4) . ' autre(s)', 7.5, true, self::GRIS);
+                if ($reste > 0) {
+                    $this->texte($x + 4, $y + 6 + count($lignes) * 10, '+ ' . $reste . ' autre(s)', 7.5, true, self::GRIS);
                 }
             }
             $this->curseur += $hauteur;
