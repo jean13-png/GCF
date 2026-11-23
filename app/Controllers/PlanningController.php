@@ -527,7 +527,8 @@ final class PlanningController
             $reservations,
             $lundi->format('Y-m-d'),
             $dimanche->format('Y-m-d'),
-            $this->fermeture - $this->ouverture
+            $this->ouverture,
+            $this->fermeture
         );
 
         header('Content-Type: application/pdf');

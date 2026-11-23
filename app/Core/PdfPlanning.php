@@ -20,6 +20,7 @@ final class PdfPlanning
     private const LIGNE = [0.800, 0.839, 0.882];
     private const FOND  = [0.945, 0.961, 0.976];
     private const BLANC = [1.0, 1.0, 1.0];
+    private const LIBRE = [0.086, 0.545, 0.259];
 
     private const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
     private const MOIS  = ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
@@ -47,7 +48,7 @@ final class PdfPlanning
      * Génère le PDF de la semaine (chaîne binaire).
      * $heuresParJour = fermeture - ouverture (sert au taux d'occupation).
      */
-    public function semaine(array $salles, array $reservations, string $lundi, string $dimanche, int $heuresParJour): string
+    public function semaine(array $salles, array $reservations, string $lundi, string $dimanche, int $ouverture, int $fermeture): string
     {
         $this->pages = [];
         $this->flux = '';
@@ -56,7 +57,7 @@ final class PdfPlanning
 
         $this->vueSemaine($salles, $reservations, $lundi, $periode);
         foreach ($salles as $salle) {
-            $this->pageSalle($salle, $reservations, $lundi, $dimanche, $periode, $heuresParJour);
+            $this->pageSalle($salle, $reservations, $lundi, $dimanche, $periode, $ouverture, $fermeture);
         }
         return $this->sortie('Planning des salles - ' . $periode);
     }
@@ -157,7 +158,7 @@ final class PdfPlanning
 
     /* ─────────────── Une page par salle ─────────────── */
 
-    private function pageSalle(array $salle, array $reservations, string $lundi, string $dimanche, string $periode, int $heuresParJour): void
+    private function pageSalle(array $salle, array $reservations, string $lundi, string $dimanche, string $periode, int $ouverture, int $fermeture): void
     {
         $resas = [];
         foreach ($reservations as $r) {
@@ -165,14 +166,22 @@ final class PdfPlanning
                 $resas[] = $r;
             }
         }
-        usort($resas, static fn($a, $b) => [$a['date_reservation'], $a['heure_debut']] <=> [$b['date_reservation'], $b['heure_debut']]);
-
         $minutes = 0;
         foreach ($resas as $r) {
             $minutes += $this->minutesDansSemaine($r, $lundi, $dimanche);
         }
-        $capacite = 7 * $heuresParJour;
-        $taux = $capacite > 0 ? (int) round(($minutes / 60) / $capacite * 100) : 0;
+        $capacite = 7 * max(1, $fermeture - $ouverture);
+        $taux = (int) round(($minutes / 60) / $capacite * 100);
+
+        // Réservations et créneaux libres, dans l'ordre chronologique
+        $lignes = [];
+        foreach ($resas as $r) {
+            $lignes[] = ['date' => (string) $r['date_reservation'], 'debut' => $this->minutesHeure((string) $r['heure_debut']), 'resa' => $r];
+        }
+        foreach ($this->creneauxLibres($resas, $lundi, $dimanche, $ouverture, $fermeture) as [$jour, $d, $f]) {
+            $lignes[] = ['date' => $jour, 'debut' => $d, 'libre' => [$jour, $d, $f]];
+        }
+        usort($lignes, static fn($a, $b) => [$a['date'], $a['debut']] <=> [$b['date'], $b['debut']]);
 
         $titre = 'Salle : ' . $salle['nom'];
         $this->page($titre, $periode);
@@ -191,12 +200,12 @@ final class PdfPlanning
         $cols = [['Jour', 150], ['Horaire', 105], ['Événement', 240], ['Organisateur', 205], ['Statut', 70]];
         $this->enteteTableau($cols);
 
-        if ($resas === []) {
-            $this->texte(self::MARGE + 6, $this->curseur + 8, 'Aucune réservation cette semaine : la salle est libre.', 10, false, self::GRIS);
+        if ($lignes === []) {
+            $this->texte(self::MARGE + 6, $this->curseur + 8, 'Aucun créneau disponible cette semaine.', 10, false, self::GRIS);
             return;
         }
 
-        foreach ($resas as $i => $r) {
+        foreach ($lignes as $i => $ligne) {
             if ($this->curseur + 22 > self::HAUTEUR - 60) {
                 $this->page($titre, $periode);
                 $this->enteteTableau($cols);
@@ -205,24 +214,76 @@ final class PdfPlanning
             if ($i % 2 === 1) {
                 $this->rect(self::MARGE, $y, self::LARGEUR - 2 * self::MARGE, 22, self::FOND);
             }
-            $formateur = trim(($r['formateur_prenom'] ?? '') . ' ' . ($r['formateur_nom'] ?? ''));
-            $valeurs = [
-                $this->libelleDates($r),
-                substr($r['heure_debut'], 0, 5) . ' – ' . substr($r['heure_fin'], 0, 5),
-                (string) $r['evenement'],
-                (string) $r['demandeur_nom'] . ($formateur !== '' ? ' · formateur : ' . $formateur : ''),
-                self::STATUT_LIBELLE[$r['statut']] ?? (string) $r['statut'],
-            ];
+            if (isset($ligne['resa'])) {
+                $r = $ligne['resa'];
+                $formateur = trim(($r['formateur_prenom'] ?? '') . ' ' . ($r['formateur_nom'] ?? ''));
+                $valeurs = [
+                    $this->libelleDates($r),
+                    substr($r['heure_debut'], 0, 5) . ' – ' . substr($r['heure_fin'], 0, 5),
+                    (string) $r['evenement'],
+                    (string) $r['demandeur_nom'] . ($formateur !== '' ? ' · formateur : ' . $formateur : ''),
+                    self::STATUT_LIBELLE[$r['statut']] ?? (string) $r['statut'],
+                ];
+                $couleurs = [self::INK, self::INK, self::INK, self::INK, self::STATUT_COULEUR[$r['statut']] ?? self::INK];
+            } else {
+                [$jour, $d, $f] = $ligne['libre'];
+                $valeurs = [
+                    ucfirst($this->nomJour($jour)) . ' ' . substr($jour, 8, 2) . '/' . substr($jour, 5, 2),
+                    $this->hm($d) . ' – ' . $this->hm($f),
+                    'Créneau disponible',
+                    '–',
+                    'Libre',
+                ];
+                $couleurs = [self::INK, self::INK, self::GRIS, self::GRIS, self::LIBRE];
+            }
             $x = self::MARGE;
             foreach ($cols as $c => [$nom, $larg]) {
                 $statut = $c === 4;
-                $couleur = $statut ? (self::STATUT_COULEUR[$r['statut']] ?? self::INK) : self::INK;
-                $this->texte($x + 6, $y + 7, $this->ajuster($valeurs[$c], 8.5, $statut, $larg - 12), 8.5, $statut, $couleur);
+                $this->texte($x + 6, $y + 7, $this->ajuster($valeurs[$c], 8.5, $statut, $larg - 12), 8.5, $statut, $couleurs[$c]);
                 $x += $larg;
             }
             $this->ligne(self::MARGE, $y + 22, self::LARGEUR - self::MARGE, $y + 22, self::LIGNE);
             $this->curseur += 22;
         }
+    }
+
+    /** Créneaux libres d'une salle sur la semaine, entre ouverture et fermeture (minimum 30 min). */
+    private function creneauxLibres(array $resas, string $lundi, string $dimanche, int $ouverture, int $fermeture): array
+    {
+        $libres = [];
+        for ($j = 0; $j < 7; $j++) {
+            $jour = $this->decaler($lundi, $j);
+            $occupes = [];
+            foreach ($resas as $r) {
+                $fin = $r['date_fin'] ?: $r['date_reservation'];
+                if ($r['date_reservation'] <= $jour && $fin >= $jour) {
+                    $occupes[] = [$this->minutesHeure((string) $r['heure_debut']), $this->minutesHeure((string) $r['heure_fin'])];
+                }
+            }
+            usort($occupes, static fn($a, $b) => $a[0] <=> $b[0]);
+            $curseur = $ouverture * 60;
+            foreach ($occupes as [$d, $f]) {
+                if ($d - $curseur >= 30) {
+                    $libres[] = [$jour, $curseur, $d];
+                }
+                $curseur = max($curseur, $f);
+            }
+            if ($fermeture * 60 - $curseur >= 30) {
+                $libres[] = [$jour, $curseur, $fermeture * 60];
+            }
+        }
+        return $libres;
+    }
+
+    private function minutesHeure(string $heure): int
+    {
+        [$h, $m] = array_map('intval', explode(':', substr($heure, 0, 5)));
+        return $h * 60 + $m;
+    }
+
+    private function hm(int $minutes): string
+    {
+        return sprintf('%02d:%02d', intdiv($minutes, 60), $minutes % 60);
     }
 
     private function enteteTableau(array $cols): void
