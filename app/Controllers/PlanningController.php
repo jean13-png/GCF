@@ -511,6 +511,16 @@ final class PlanningController
         $dimanche = (clone $lundi)->modify('+6 days');
 
         $salles = Salle::tous();
+        $salleId = (int) ($_GET['salle_id'] ?? 0);
+        $nomFichier = 'planning_salles_';
+        if ($salleId > 0) {
+            $choisie = array_values(array_filter($salles, static fn($s) => (int) $s['id'] === $salleId));
+            if ($choisie !== []) {
+                $salles = $choisie;
+                $slug = strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', (string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $choisie[0]['nom'])));
+                $nomFichier = 'planning_' . trim($slug, '-') . '_';
+            }
+        }
         $reservations = Reservation::entre($lundi->format('Y-m-d'), $dimanche->format('Y-m-d'));
         $pdf = (new \App\Core\PdfPlanning())->semaine(
             $salles,
@@ -521,7 +531,7 @@ final class PlanningController
         );
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="planning_salles_' . $lundi->format('Y-m-d') . '.pdf"');
+        header('Content-Disposition: attachment; filename="' . $nomFichier . $lundi->format('Y-m-d') . '.pdf"');
         header('Content-Length: ' . strlen($pdf));
         header('Cache-Control: no-store');
         echo $pdf;
