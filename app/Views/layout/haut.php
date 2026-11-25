@@ -63,6 +63,7 @@ $actif = static function (string $route) use ($cheminCourant): string {
                     <div class="groupe">Réservation de salles</div>
                     <a href="<?= url('/salles') ?>"<?= $actif('/salles') ?>><span class="ic"><i class="fas fa-door-open"></i></span> Salles</a>
                     <a href="<?= url('/reservations') ?>"<?= $actif('/reservations') ?>><span class="ic"><i class="fas fa-check"></i></span> Réservations</a>
+                    <a href="<?= url('/avis') ?>"<?= $actif('/avis') ?>><span class="ic">★</span> Avis</a>
                 <?php endif; ?>
                 <a href="<?= url('/planning') ?>"<?= $actif('/planning') ?>><span class="ic"><i class="fas fa-calendar-alt"></i></span> Planning</a>
 

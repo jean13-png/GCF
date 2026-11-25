@@ -23,6 +23,7 @@ require dirname(__DIR__) . '/app/Core/Helpers.php';
 
 use App\Controllers\ApprenantController;
 use App\Controllers\AuthController;
+use App\Controllers\AvisController;
 use App\Controllers\ContactController;
 use App\Controllers\DashboardController;
 use App\Controllers\FormationController;
@@ -68,6 +69,11 @@ $router->get('/reservations', [ReservationController::class, 'index'], ['ADMIN',
 $router->get('/reservations/nouvelle', [ReservationController::class, 'form'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);
 $router->post('/reservations/enregistrer', [ReservationController::class, 'enregistrer'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);
 $router->post('/reservations/statut/{id}', [ReservationController::class, 'changerStatut'], ['ADMIN', 'GESTIONNAIRE']);
+
+// ── Avis après réservation (lien personnel, sans connexion) ───────
+$router->get('/avis/{token}', [AvisController::class, 'afficherPublique']);
+$router->post('/avis/{token}', [AvisController::class, 'soumettre']);
+$router->get('/avis', [AvisController::class, 'liste'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE']);
 
 // ── Planning hebdomadaire ─────────────────────────────────────────
 $router->get('/planning', [PlanningController::class, 'index'], ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE', 'FORMATEUR']);

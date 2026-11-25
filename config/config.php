@@ -8,6 +8,15 @@ return [
         'nom'        => 'GCF',
         'nom_complet'=> 'Gestion Centre de Formation',
         'dev'        => true,           // false en production
+        // Adresse publique absolue de la plateforme (ex. https://domaine/GCF).
+        // Obligatoire pour les liens des e-mails d'avis : vide = aucun envoi.
+        'url'        => '',
+        'fuseau'     => 'Africa/Porto-Novo',
+    ],
+    // Envoi des avis : date à partir de laquelle les réservations sont concernées
+    // (ex. '2026-09-05'). null = désactivé. Jamais de rétroactivité.
+    'avis' => [
+        'depuis' => null,
     ],
     'db' => [
         'host'    => '127.0.0.1',
